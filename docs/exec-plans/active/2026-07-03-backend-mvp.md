@@ -16,7 +16,7 @@ images, Vercel Cron for top-up.
 
 ## Phase 1 — `packages/contract` (shared types + zod)
 
-**Status:** Not Started
+**Status:** Done
 
 The typed spine both `api` and `mobile` import. No runtime deps beyond zod.
 
