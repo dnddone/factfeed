@@ -34,6 +34,7 @@ pnpm dev            # run all apps in dev (turbo)
 pnpm build          # build all
 pnpm lint           # lint all
 pnpm typecheck      # type-check all
+pnpm test           # run tests (turbo)
 pnpm format         # prettier --write the repo
 ```
 
@@ -176,7 +177,69 @@ Testing setup and error/toast UI conventions for mobile aren't decided yet
 - Prefer `type` over `interface`. Prefer arrow functions.
 - Descriptive names; single-letter only for `for` loop indices.
 - Always use block syntax for conditionals — no inline single-line `if`.
-- Use `/** */` block comments, never `//` (except `eslint-disable` / `@ts-*`).
+- Always use multiline `/** */` block comments, even for a single line of
+  text. Never use `//` or single-line `/** ... */`, except `eslint-disable` /
+  `@ts-*` directives:
+
+  ```ts
+  // Incorrect
+  /** Values are i18n keys */
+
+  // Correct
+  /**
+   * Values are i18n keys
+   */
+  ```
+
+## Destructuring
+
+Prefer destructuring. Choose the pattern based on whether you need the full object:
+
+```ts
+// Only need fields — destructure in params
+const handleSubmit = ({ foo, bar }: Data) => {
+  fn({ id: foo });
+};
+
+// Need full object + one field inline — keep param, dot-access
+const renderItem = (item: Item) => ({ key: item.id, item });
+
+// Need derived values + full object — keep param, destructure in body
+const renderItem = (item: Item) => {
+  const { id, time } = item;
+  const formattedTime = dayjs(time).format("l");
+  return { key: id, formattedTime, onClick: () => handleClick(item) };
+};
+
+// Need full object + multiple fields — keep param, destructure in body
+const handleSubmit = (data: Data) => {
+  const { foo, bar, ...rest } = data;
+  fn(rest);
+  fn2({ id: foo, payload: data });
+  onSubmit(data);
+};
+```
+
+When destructuring in a nested scope would shadow an outer variable, resolve
+the naming conflict explicitly — never silently shadow. Pick whichever
+rename makes the intent clearest:
+
+```ts
+// Incorrect — inner `value` silently shadows outer `value`
+const comp = ({ value }: Props) => array.filter(({ value }) => value === value);
+
+// Option A — rename the inner binding with an alias
+const comp = ({ value }: Props) =>
+  array.filter(({ value: itemValue }) => itemValue === value);
+
+// Option B — give the outer param a more specific name
+const comp = ({ value: targetValue }: Props) =>
+  array.filter(({ value }) => value === targetValue);
+
+// Option C — rename the outer param outright when the context makes it clearer
+const fn = (targetValue: string) =>
+  Object.values(object).map((value) => value === targetValue);
+```
 
 ## Naming
 

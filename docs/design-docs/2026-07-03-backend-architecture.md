@@ -133,7 +133,7 @@ tRPC procedures (typed end-to-end; inputs validated with zod from
 `packages/contract`):
 
 ```
-feed.list      { cursor?, limit? }        -> next batch of ranked, unseen posts
+feed.list      { limit? }                 -> weighted-random batch of unseen posts
 swipe.record   { postId, direction }      -> records vote, bumps counters
 ```
 

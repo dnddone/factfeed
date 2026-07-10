@@ -1,6 +1,6 @@
 # 0010. Trend-weighted score, per-user affinity, category-informed generation
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-07-08
 
 **Supersedes:** the ranking half of [0005](0005-ranking-and-cron-topup.md) (the

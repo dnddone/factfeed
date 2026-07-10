@@ -5,7 +5,6 @@ export const FEED_DEFAULT_LIMIT = 20;
 export const FEED_MAX_LIMIT = 50;
 
 export const feedListInput = z.object({
-  cursor: z.string().optional(),
   limit: z
     .number()
     .int()
@@ -18,5 +17,4 @@ export type FeedListInput = z.infer<typeof feedListInput>;
 
 export type FeedListOutput = {
   posts: Post[];
-  nextCursor: string | null;
 };
