@@ -13,11 +13,11 @@ problems once the pool has any history:
 
 1. **No trend.** The ratio is over all-time cumulative counts, so a post that
    got 50 likes in its first week and nothing since ranks identically to one
-   getting 50 likes *this* week. A currently-resonating post can't out-rank a
+   getting 50 likes _this_ week. A currently-resonating post can't out-rank a
    stale one with a bigger lifetime total.
 2. **No personalization.** A dislike is treated as evidence the post is
-   low-quality for everyone. Often it isn't — it's evidence this *user* isn't
-   into this *category* (e.g. a history buff swiping left on a chemistry
+   low-quality for everyone. Often it isn't — it's evidence this _user_ isn't
+   into this _category_ (e.g. a history buff swiping left on a chemistry
    fact). Folding that into one global counter conflates "bad fact" with "not
    my taste," and every user sees the same order (flagged as an open question
    in the [backend architecture doc](../design-docs/2026-07-03-backend-architecture.md#still-open-defer)).
@@ -67,7 +67,7 @@ probability (Laplace-smoothed rate), so use it as one: each unseen post's
 `score + w * affinity[post.category]` becomes its **weight** in a weighted
 random draw (weighted sampling without replacement — a.k.a. roulette-wheel
 selection) that fills the feed page, instead of sorting desc and taking the
-top N. A post at 0.51 is only *slightly* more likely to be drawn than one at
+top N. A post at 0.51 is only _slightly_ more likely to be drawn than one at
 0.5 — proportional to the score gap, not a hard rank cutoff. This also
 replaces the separate fresh/random exposure slice from 0005: exposure for
 new/low-score posts falls out of the weighting itself (a 0.5-score post still
@@ -118,7 +118,7 @@ Two consumers:
 - **Global score still absorbs real quality signal.** A fact that's
   genuinely wrong or boring collects dislikes from users across categories,
   which still drags `score` down and its draw weight with it. Personalization
-  (`w * affinity`) only adjusts *that user's* odds on top of the shared
+  (`w * affinity`) only adjusts _that user's_ odds on top of the shared
   weight — it doesn't let a single user's taste zero out a post for everyone,
   and it doesn't let affinity alone make a bad post likely to be drawn. If
   that split doesn't hold up in practice, it's easier to shrink `w` than to
@@ -137,8 +137,8 @@ Two consumers:
   flagged as a future upgrade, not built now, since vote counts are low
   across the board pre-launch and the gap won't bite yet.
 - **"Trend" here means recency-weighted level, not velocity/momentum.** Decay
-  answers "how is this post doing *right now*," which is what feeds the
-  sampling weight. It does not detect whether engagement is *accelerating*
+  answers "how is this post doing _right now_," which is what feeds the
+  sampling weight. It does not detect whether engagement is _accelerating_
   (a post climbing from 0.3 to 0.55 vs one sitting flat at 0.55 look
   identical to this scheme). True momentum detection (e.g. comparing a fast
   vs a slow decay half-life, same idea as MACD) is a distinct, separate

@@ -68,6 +68,24 @@ docs/            # see "Documentation and Planning" below
   duplicated by hand.
 - Deep-import from libraries; avoid barrel files on hot paths.
 
+### Source layout (`apps/api`, `apps/mobile`)
+
+No catch-all `lib/`. Split by purpose instead:
+
+- `utils/` — pure, stateless helper functions (type guards, formatting,
+  math). No side effects, no I/O.
+- `clients/` — third-party client instantiation (SDK/API clients, analytics)
+  and the settings that configure them (e.g. the Prisma client, the
+  Anthropic client). Distinct from `packages/config` (shared tsconfig/lint
+  config for the monorepo).
+- `constants/` — app-wide constants not tied to a specific third-party
+  client (e.g. env flags like `IS_PRODUCTION`). One file per concern, named
+  `<concern>.constants.ts` (e.g. `app.constants.ts`) — never a single
+  flat `constants.ts`.
+- Business-logic / data-access modules stay flat at the app's own top level
+  (e.g. `apps/api/src/ranking.ts`) — don't invent a folder for them until
+  there are enough to warrant one.
+
 ### API layer (`apps/api`)
 
 - Data-access functions are async, typed, no classes.
@@ -89,8 +107,8 @@ components/
   module/             # composed: SwipeDeck, FactCard, etc.
 hooks/                # custom hooks
 context/              # React context providers
-lib/                  # third-party client configs (API client, analytics)
-lib/utils/            # shared utilities (type guards, animation helpers)
+clients/              # third-party client instantiation (API client, analytics)
+utils/                # shared utilities (type guards, animation helpers)
 ```
 
 - **Routing**: Expo Router. Route files under `app/` only compose
