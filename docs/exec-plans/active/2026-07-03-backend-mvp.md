@@ -39,7 +39,7 @@ The typed spine both `api` and `mobile` import. No runtime deps beyond zod.
 
 ## Phase 2 — `apps/api` skeleton + Supabase/Prisma + schema + seed
 
-**Status:** Not Started
+**Status:** Done
 
 Stand up the Next.js app, connect Postgres, define the schema, seed a static
 batch of facts. No feed/swipe logic yet.
@@ -57,7 +57,7 @@ batch of facts. No feed/swipe logic yet.
   `@@unique([userId, postId])`), `UserCategoryAffinity` (userId, category,
   affinity, updatedAt, `@@unique([userId, category])`), `CategoryStats`
   (category, likeCount, dislikeCount, scoreUpdatedAt, `@@unique([category])`).
-- `src/lib/db.ts` — singleton Prisma client.
+- `src/clients/db.ts` — singleton Prisma client.
 - First migration; `prisma/seed.ts` inserts ~30 static facts (hardcoded list)
   with `imageSource = "typographic"` and `imageUrl` null for now.
 
@@ -107,7 +107,7 @@ probability-weighted random selection instead of a deterministic sort.
 
 **Steps**
 
-- `src/lib/ranking.ts` — decay helper (`0.5 ^ (elapsedHours / HALF_LIFE_HOURS)`),
+- `src/ranking.ts` — decay helper (`0.5 ^ (elapsedHours / HALF_LIFE_HOURS)`),
   applied to `likeCount`/`dislikeCount` before the Laplace formula:
   `score = (likeCount + 1) / (likeCount + dislikeCount + 2)`.
 - Recompute and persist `Post.score`, `scoreUpdatedAt`, the swiping user's
@@ -117,7 +117,7 @@ probability-weighted random selection instead of a deterministic sort.
   category's `CategoryStats` score (`PRIOR_WEIGHT` virtual votes) instead of
   starting at 0/0; falls back to today's flat 0.5 when the category has no
   `CategoryStats` row yet.
-- `src/lib/feed.ts` — fetch a candidate pool of unseen posts (e.g. the top N
+- `src/feed.ts` — fetch a candidate pool of unseen posts (e.g. the top N
   by `score`, large enough to include plenty of lower-score posts too — this
   is just a DB-fetch limit, not a rank cutoff), then fill the page via
   weighted random sampling without replacement, using
@@ -148,13 +148,13 @@ probability-weighted random selection instead of a deterministic sort.
 
 **Steps**
 
-- `src/lib/generation.ts` — Anthropic SDK; prompt Claude for a batch of facts
+- `src/generation.ts` — Anthropic SDK; prompt Claude for a batch of facts
   (content + category); content-hash dedupe against existing posts; persist.
 - Category mix for a batch is weighted by `CategoryStats` score (ADR 0010),
   with an exploration floor reserving a minimum share for categories with no
   or low-sample `CategoryStats` rows so they aren't starved before they can
   prove out.
-- `src/lib/image.ts` — render a typographic card with `@vercel/og`; store/attach
+- `src/image.ts` — render a typographic card with `@vercel/og`; store/attach
   `imageUrl`, set `imageSource = "typographic"`.
 - Replace the static seed with a generation-backed seed script.
 - Add `ANTHROPIC_API_KEY` to `.env.example`. Guard cost with a batch-size cap.

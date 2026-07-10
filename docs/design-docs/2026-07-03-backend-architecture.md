@@ -77,7 +77,7 @@ score = (likeCount + 1) / (likeCount + dislikeCount + 2)
 ```
 
 On top of the global `score`, each user has a small per-category affinity
-(`UserCategoryAffinity`, ADR 0010) that nudges the ordering of *their* feed —
+(`UserCategoryAffinity`, ADR 0010) that nudges the ordering of _their_ feed —
 a dislike mostly signals "not my taste," not "bad post for everyone."
 
 Feed query: posts the user has **not** swiped; `score` is a probability, so
@@ -178,11 +178,11 @@ apps/api/
   src/server/routers/         feed, swipe routers
   app/api/trpc/[trpc]/route.ts  tRPC HTTP handler
   app/api/cron/top-up/route.ts  cron trigger (secured)
-  src/lib/db.ts               Prisma client
-  src/lib/ranking.ts          score computation
-  src/lib/generation.ts       Claude prompt + dedupe + persist
-  src/lib/image.ts            @vercel/og typographic card
-  src/lib/feed.ts             unseen + ranked query
+  src/clients/db.ts            Prisma client
+  src/ranking.ts               score computation
+  src/generation.ts            Claude prompt + dedupe + persist
+  src/image.ts                 @vercel/og typographic card
+  src/feed.ts                  unseen + ranked query
   prisma/schema.prisma        schema + migrations
 ```
 

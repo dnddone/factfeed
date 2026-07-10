@@ -1,0 +1,33 @@
+{
+  "name": "@factfeed/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@factfeed/contract": "workspace:*",
+    "@prisma/client": "^6.19.2",
+    "next": "^16.2.10",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^16.2.10",
+    "prisma": "^6.19.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

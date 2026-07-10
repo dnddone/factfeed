@@ -9,12 +9,16 @@ External services to register with before/while implementing
 ### Supabase — Postgres, Auth
 
 - Create a project at supabase.com.
-- **Phase 2**: `DATABASE_URL` (pooled, transaction mode) + `DIRECT_URL`
-  (direct, for `prisma migrate`) from Project Settings → Database.
+- **Phase 2**: `DATABASE_URL` (pooled, transaction mode, port 6543) +
+  `DIRECT_URL` (for `prisma migrate`) from Project Settings → Database.
+  Supabase's plain "Direct connection" host (`db.<ref>.supabase.co`) is
+  IPv6-only and unreachable from IPv4-only networks — use the **Session
+  pooler** string instead for `DIRECT_URL` (same pooler host as
+  `DATABASE_URL`, port 5432, no `pgbouncer=true` param).
 - **Phase 7** (pulled forward per ADR 0009 — swipe is auth-gated): `SUPABASE_URL`
-  + `SUPABASE_ANON_KEY` (client-side session) and `SUPABASE_SERVICE_ROLE_KEY`
-  (server-side session verification in the tRPC context) from Project
-  Settings → API.
+  - `SUPABASE_ANON_KEY` (client-side session) and `SUPABASE_SERVICE_ROLE_KEY`
+    (server-side session verification in the tRPC context) from Project
+    Settings → API.
 
 ### Anthropic — Claude API
 

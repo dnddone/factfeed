@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum SwipeDirection {
+  LIKE
+  DISLIKE
+  SKIP
+}
+
+enum ImageSource {
+  TYPOGRAPHIC
+  STOCK
+  AI
+}
+
+model Post {
+  id             String      @id @default(cuid())
+  content        String
+  category       String
+  imageUrl       String?
+  imageSource    ImageSource @default(TYPOGRAPHIC)
+  likeCount      Float       @default(0)
+  dislikeCount   Float       @default(0)
+  scoreUpdatedAt DateTime    @default(now())
+  seenCount      Int         @default(0)
+  score          Float       @default(0.5)
+  createdAt      DateTime    @default(now())
+
+  swipes Swipe[]
+
+  @@index([category])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  swipes             Swipe[]
+  categoryAffinities UserCategoryAffinity[]
+}
+
+model Swipe {
+  id        String         @id @default(cuid())
+  userId    String
+  postId    String
+  direction SwipeDirection
+  createdAt DateTime       @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId])
+}
+
+model UserCategoryAffinity {
+  userId    String
+  category  String
+  affinity  Float    @default(0)
+  updatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, category])
+}
+
+model CategoryStats {
+  category       String   @id
+  likeCount      Float    @default(0)
+  dislikeCount   Float    @default(0)
+  scoreUpdatedAt DateTime @default(now())
+}

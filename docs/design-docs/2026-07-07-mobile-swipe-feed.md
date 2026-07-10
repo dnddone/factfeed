@@ -96,8 +96,8 @@ apps/mobile/                    new app (Expo, TS)
   src/hooks/useFeed.ts           feed.list pagination wrapper
   src/components/SwipeCard.tsx   single card, pan gesture + animation
   src/components/CardStack.tsx   stack rendering + swipe orchestration
-  src/lib/trpc.ts                tRPC client (attaches accessToken)
-  src/lib/supabase.ts            Supabase client init
+  src/clients/trpc.ts             tRPC client (attaches accessToken)
+  src/clients/supabase.ts         Supabase client init
 ```
 
 Uses `Post`, `FeedItem`, `SwipeInput`, `SwipeDirection` from
