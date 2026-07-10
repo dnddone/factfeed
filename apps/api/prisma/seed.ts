@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { DEV_USER_ID } from "@/constants/auth.constants";
 
 const prisma = new PrismaClient();
 
@@ -143,6 +144,12 @@ const FACTS: { content: string; category: string }[] = [
 ];
 
 const main = async (): Promise<void> => {
+  await prisma.user.upsert({
+    where: { id: DEV_USER_ID },
+    update: {},
+    create: { id: DEV_USER_ID },
+  });
+
   for (const fact of FACTS) {
     const existing = await prisma.post.findFirst({
       where: { content: fact.content },

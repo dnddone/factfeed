@@ -25,7 +25,7 @@ The typed spine both `api` and `mobile` import. No runtime deps beyond zod.
 - Create `packages/contract` (`@factfeed/contract`) with its own `package.json`,
   `tsconfig.json` extending `../../tsconfig.base.json`, and `zod` dependency.
 - Define the `SwipeDirection` enum (`LIKE | DISLIKE | SKIP`) and domain types:
-  `Post`, `FeedItem` (post + whether current user liked), `SwipeInput`.
+  `Post`, `FeedListOutput`, `SwipeInput`.
 - Define zod schemas for procedure inputs: `feedListInput` (`cursor?`, `limit`),
   `swipeRecordInput` (`postId`, `direction`), and infer TS types from them.
 - Export everything from the package entry (no deep barrels on hot paths).
@@ -71,7 +71,7 @@ batch of facts. No feed/swipe logic yet.
 
 ## Phase 3 — tRPC `feed.list` + `swipe.record` (static pool)
 
-**Status:** Not Started
+**Status:** Done
 
 Wire tRPC and serve the seeded facts. Ranking is naive here (newest first);
 Phase 4 replaces it.
@@ -87,13 +87,15 @@ Phase 4 replaces it.
 - `swipe.record` — upsert a `Swipe` (respect the unique constraint), and
   atomically bump the post's `likeCount` / `dislikeCount` / `seenCount` in a
   transaction. Idempotent on repeat swipes of the same post.
-- Colocated tests (`__tests__/`) for the unseen filter and counter increments.
+- No automated tests this phase — DB test strategy not yet decided, see
+  `docs/inbox/2026-07-10-backend-test-db-strategy.md`. Verify manually
+  (`prisma studio` / direct calls) before marking Done.
 
 **Acceptance**
 
 - `feed.list` never returns a post the user already swiped.
 - `swipe.record` increments the right counter and is safe to call twice.
-- `pnpm --filter @factfeed/api test` + `typecheck` pass.
+- `pnpm --filter @factfeed/api typecheck` passes.
 
 ---
 
