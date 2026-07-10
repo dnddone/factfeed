@@ -100,7 +100,7 @@ apps/mobile/                    new app (Expo, TS)
   src/clients/supabase.ts         Supabase client init
 ```
 
-Uses `Post`, `FeedItem`, `SwipeInput`, `SwipeDirection` from
+Uses `Post`, `FeedListOutput`, `SwipeInput`, `SwipeDirection` from
 `packages/contract` as-is — no contract changes.
 
 ## Resolved decisions

@@ -1,10 +1,6 @@
 export type Post = {
   id: string;
   content: string;
-  imageUrl: string;
+  imageUrl: string | null;
   createdAt: string;
-};
-
-export type FeedItem = Post & {
-  likedByUser: boolean;
 };
