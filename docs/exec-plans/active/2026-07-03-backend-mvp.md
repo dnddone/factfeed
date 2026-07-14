@@ -101,7 +101,7 @@ Phase 4 replaces it.
 
 ## Phase 4 — Ranking (decayed score + affinity + category prior + weighted sampling)
 
-**Status:** Not Started
+**Status:** Done
 
 Per ADR 0010: decayed counters instead of lifetime totals, a per-user
 category affinity layered on top, a category-level prior for cold-start, and
@@ -111,25 +111,39 @@ probability-weighted random selection instead of a deterministic sort.
 
 - `src/ranking.ts` — decay helper (`0.5 ^ (elapsedHours / HALF_LIFE_HOURS)`),
   applied to `likeCount`/`dislikeCount` before the Laplace formula:
-  `score = (likeCount + 1) / (likeCount + dislikeCount + 2)`.
+  `score = (likeCount + 1) / (likeCount + dislikeCount + 2)`. Pure functions
+  only, no DB — this is what makes the ranking math unit-testable without
+  resolving the DB-test-strategy question first (see
+  `docs/inbox/2026-07-10-backend-test-db-strategy.md`).
 - Recompute and persist `Post.score`, `scoreUpdatedAt`, the swiping user's
   `UserCategoryAffinity` row, and the post's category `CategoryStats` row
   inside the `swipe.record` transaction.
-- New posts seed `likeCount`/`dislikeCount` from a small prior toward their
-  category's `CategoryStats` score (`PRIOR_WEIGHT` virtual votes) instead of
-  starting at 0/0; falls back to today's flat 0.5 when the category has no
-  `CategoryStats` row yet.
-- `src/feed.ts` — fetch a candidate pool of unseen posts (e.g. the top N
-  by `score`, large enough to include plenty of lower-score posts too — this
-  is just a DB-fetch limit, not a rank cutoff), then fill the page via
-  weighted random sampling without replacement, using
-  `score + w * affinity[category]` as each post's weight.
-- Backfill `score`/`scoreUpdatedAt` for seeded rows (migration or seed update).
-- Tests: zero-vote in a fresh category → 0.5; zero-vote in a known category →
-  prior-adjusted score; decay reduces stale engagement's weight over time;
-  affinity nudges a user's own draw odds without changing other users'
-  `score`; a higher-score post is drawn more often across repeated samples,
-  but not deterministically first every time.
+- `priorPostCounters` (cold-start blend toward `CategoryStats` score) is
+  implemented in `src/ranking.ts` but not yet wired into post creation — the
+  only place posts are created today is the Phase 2 static seed, and every
+  category starts with no `CategoryStats` row anyway, so it falls back to
+  flat 0.5 either way. Wire it into `src/generation.ts` when Phase 5 adds the
+  first real post-creation path.
+- `src/feed.ts` — fetch a candidate pool of unseen posts (top N by `score`,
+  a DB-fetch limit not a rank cutoff), then fill the page via weighted random
+  sampling without replacement, using `score + w * affinity[category]` as
+  each post's weight.
+- No backfill needed — `Post.score`/`scoreUpdatedAt` already default to
+  `0.5`/`now()` from the Phase 2 schema.
+- `UserCategoryAffinity` switched from `@@unique([userId, category])` to
+  `@@id([userId, category])` (composite primary key) while touching this
+  table — it had no other identifier.
+- **Contract change**: `feedListInput`/`FeedListOutput` drop `cursor`/
+  `nextCursor`. Weighted-random sampling has no stable order to page
+  through; `feed.list` now always draws a fresh sample of the caller's
+  unseen posts. See the mobile design doc for the resulting prefetch caveat.
+- Tests (`apps/api/src/__tests__/ranking.test.ts`, no DB): zero-vote in a
+  fresh category → 0.5; zero-vote in a known category → prior-adjusted
+  score; decay reduces stale engagement's weight over time; affinity nudges
+  draw odds; a higher-score post is drawn more often across repeated
+  samples, but not deterministically first every time.
+- Added `vitest` to `apps/api` (first tests in the repo) — wired `pnpm test`
+  at the root and a `test` task in `turbo.json`.
 
 **Acceptance**
 

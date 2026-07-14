@@ -67,7 +67,7 @@ model UserCategoryAffinity {
 
   user User @relation(fields: [userId], references: [id])
 
-  @@unique([userId, category])
+  @@id([userId, category])
 }
 
 model CategoryStats {

@@ -40,14 +40,20 @@ success.
 
 ## Data flow
 
-**On mount** — `feed.list` (no cursor) → render the top of the stack. Guest
-and signed-in requests hit the same procedure; a guest request has no
+**On mount** — `feed.list` → render the top of the stack. Guest and
+signed-in requests hit the same procedure; a guest request has no
 `accessToken` header, so the backend context resolves no `userId` and
 `feed.list` skips unseen-filtering (ADR 0009).
 
-**Approaching the end of the loaded batch** — call `feed.list` again with the
-returned cursor and append to the stack (prefetch a few cards before the user
-hits the end, not on the last card).
+**Approaching the end of the loaded batch** — call `feed.list` again and
+append to the stack (prefetch a few cards before the user hits the end, not
+on the last card). `feed.list` has no cursor (ADR 0010: weighted-random
+sampling has no stable order to page through — each call draws a fresh
+weighted sample of the caller's still-unseen posts). Known limitation:
+prefetching before the current batch is fully swiped can redraw a card
+that's still on-screen, since it's still "unseen" server-side until swiped.
+Acceptable for now — revisit (e.g. client-side `excludeIds`) once real usage
+shows it's actually a problem.
 
 **On swipe release:**
 

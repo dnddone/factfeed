@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "db:seed": "tsx prisma/seed.ts"
   },
   "prisma": {
@@ -30,6 +31,7 @@
     "eslint-config-next": "^16.2.10",
     "prisma": "^6.19.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.10"
   }
 }
