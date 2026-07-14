@@ -181,11 +181,15 @@ Testing setup and error/toast UI conventions for mobile aren't decided yet
   text. Never use `//` or single-line `/** ... */`, except `eslint-disable` /
   `@ts-*` directives:
 
-  ```ts
-  // Incorrect
-  /** Values are i18n keys */
+  **Incorrect:**
 
-  // Correct
+  ```ts
+  /** Values are i18n keys */
+  ```
+
+  **Correct:**
+
+  ```ts
   /**
    * Values are i18n keys
    */
@@ -195,23 +199,33 @@ Testing setup and error/toast UI conventions for mobile aren't decided yet
 
 Prefer destructuring. Choose the pattern based on whether you need the full object:
 
+**Only need fields** — destructure in params:
+
 ```ts
-// Only need fields — destructure in params
 const handleSubmit = ({ foo, bar }: Data) => {
   fn({ id: foo });
 };
+```
 
-// Need full object + one field inline — keep param, dot-access
+**Need full object + one field inline** — keep param, dot-access:
+
+```ts
 const renderItem = (item: Item) => ({ key: item.id, item });
+```
 
-// Need derived values + full object — keep param, destructure in body
+**Need derived values + full object** — keep param, destructure in body:
+
+```ts
 const renderItem = (item: Item) => {
   const { id, time } = item;
   const formattedTime = dayjs(time).format("l");
   return { key: id, formattedTime, onClick: () => handleClick(item) };
 };
+```
 
-// Need full object + multiple fields — keep param, destructure in body
+**Need full object + multiple fields** — keep param, destructure in body:
+
+```ts
 const handleSubmit = (data: Data) => {
   const { foo, bar, ...rest } = data;
   fn(rest);
@@ -224,19 +238,29 @@ When destructuring in a nested scope would shadow an outer variable, resolve
 the naming conflict explicitly — never silently shadow. Pick whichever
 rename makes the intent clearest:
 
-```ts
-// Incorrect — inner `value` silently shadows outer `value`
-const comp = ({ value }: Props) => array.filter(({ value }) => value === value);
+**Incorrect** — inner `value` silently shadows outer `value`:
 
-// Option A — rename the inner binding with an alias
+```ts
+const comp = ({ value }: Props) => array.filter(({ value }) => value === value);
+```
+
+**Option A** — rename the inner binding with an alias:
+
+```ts
 const comp = ({ value }: Props) =>
   array.filter(({ value: itemValue }) => itemValue === value);
+```
 
-// Option B — give the outer param a more specific name
+**Option B** — give the outer param a more specific name:
+
+```ts
 const comp = ({ value: targetValue }: Props) =>
   array.filter(({ value }) => value === targetValue);
+```
 
-// Option C — rename the outer param outright when the context makes it clearer
+**Option C** — rename the outer param outright when the context makes it clearer:
+
+```ts
 const fn = (targetValue: string) =>
   Object.values(object).map((value) => value === targetValue);
 ```
