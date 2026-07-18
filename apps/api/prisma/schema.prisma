@@ -23,6 +23,7 @@ enum ImageSource {
 model Post {
   id             String      @id @default(cuid())
   content        String
+  contentHash    String      @unique
   category       String
   imageUrl       String?
   imageSource    ImageSource @default(TYPOGRAPHIC)
