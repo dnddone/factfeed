@@ -1,9 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { DEV_USER_ID } from "@/constants/auth.constants";
+import type { Category } from "@/constants/categories.constants";
+import { contentHash } from "@/utils/content-hash";
 
 const prisma = new PrismaClient();
 
-const FACTS: { content: string; category: string }[] = [
+const FACTS: { content: string; category: Category }[] = [
   {
     content:
       "Octopuses have three hearts, and two of them stop beating when they swim.",
@@ -151,8 +153,9 @@ const main = async (): Promise<void> => {
   });
 
   for (const fact of FACTS) {
-    const existing = await prisma.post.findFirst({
-      where: { content: fact.content },
+    const hash = contentHash(fact.content);
+    const existing = await prisma.post.findUnique({
+      where: { contentHash: hash },
     });
 
     if (existing) {
@@ -162,6 +165,7 @@ const main = async (): Promise<void> => {
     await prisma.post.create({
       data: {
         content: fact.content,
+        contentHash: hash,
         category: fact.category,
       },
     });
