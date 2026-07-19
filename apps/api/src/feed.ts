@@ -8,12 +8,13 @@ import { sampleWeight, weightedSampleWithoutReplacement } from "@/ranking";
 
 type DrawFeedPageParams = {
   db: typeof db;
-  userId: string;
+  userId: string | null;
   limit: number;
 };
 
 /**
  * ADR 0010: candidate pool is a DB-fetch limit, not a rank cutoff — the page is drawn, not sliced.
+ * ADR 0009: a guest (userId null) has no swipe history to exclude and no affinity to weight by.
  */
 export const drawFeedPage = async ({
   db,
@@ -22,11 +23,13 @@ export const drawFeedPage = async ({
 }: DrawFeedPageParams): Promise<Post[]> => {
   const [candidates, affinities] = await Promise.all([
     db.post.findMany({
-      where: { swipes: { none: { userId } } },
+      where: userId ? { swipes: { none: { userId } } } : {},
       orderBy: { score: "desc" },
       take: CANDIDATE_POOL_SIZE,
     }),
-    db.userCategoryAffinity.findMany({ where: { userId } }),
+    userId
+      ? db.userCategoryAffinity.findMany({ where: { userId } })
+      : Promise.resolve([]),
   ]);
 
   const affinityByCategory = new Map(

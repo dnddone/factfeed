@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { DEV_USER_ID } from "@/constants/auth.constants";
 import { generateFactBatch } from "@/generation";
 
 const prisma = new PrismaClient();
@@ -11,12 +10,6 @@ const prisma = new PrismaClient();
 const SEED_BATCH_SIZE = 30;
 
 const main = async (): Promise<void> => {
-  await prisma.user.upsert({
-    where: { id: DEV_USER_ID },
-    update: {},
-    create: { id: DEV_USER_ID },
-  });
-
   const { created, duplicates } = await generateFactBatch({
     db: prisma,
     size: SEED_BATCH_SIZE,

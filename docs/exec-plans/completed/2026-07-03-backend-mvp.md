@@ -209,21 +209,40 @@ probability-weighted random selection instead of a deterministic sort.
 
 ---
 
-## Phase 7 — Supabase Auth + real users (later)
+## Phase 7 — Supabase Auth + real users
 
-**Status:** Not Started
+**Status:** Done
+
+Per ADR 0009: browsing stays open to guests, only the swipe gesture is
+auth-gated.
 
 **Steps**
 
-- Integrate Supabase Auth; derive `userId` in the tRPC context from the verified
-  session instead of the dev placeholder.
-- Protect `feed`/`swipe` procedures; keep the cron route on its secret.
-- Migrate/associate any dev-user data as needed.
+- `src/clients/supabase.ts` — Supabase client singleton (`SUPABASE_URL` +
+  `SUPABASE_ANON_KEY`, added to `.env.example`).
+- `src/auth.ts` — `resolveUserId` verifies the request's bearer token via
+  `supabase.auth.getUser`, provisioning a matching `User` row on first sight;
+  returns `null` for guests instead of throwing.
+- `src/server/trpc.ts` — `createContext` is now async and derives
+  `userId: string | null` from the request's `Authorization` header (dev
+  placeholder removed). Added `protectedProcedure`, a middleware that 401s
+  when `ctx.userId` is null and narrows it to `string` for the procedures
+  that use it.
+- `feed.list` stays on `publicProcedure` — `drawFeedPage` skips the
+  unseen-post filter and affinity lookup for a null `userId` (a guest has
+  neither yet). `swipe.record` moved to `protectedProcedure`.
+- No dev-user data to migrate — nothing had swiped as the placeholder user
+  outside local seeding.
+- Tests: `bearerToken` header-parsing (valid/missing/wrong-scheme/empty).
+  `resolveUserId` and the route/context composition are untouched by
+  automated tests, consistent with the DB-test-strategy deferral — same
+  pattern as `generateFactBatch`/`runTopUp`.
 
 **Acceptance**
 
-- Procedures require an authenticated user; each user gets their own unseen set
-  and swipe history.
+- `feed.list` works with no `Authorization` header (guest browsing).
+- `swipe.record` returns `UNAUTHORIZED` without a valid session and succeeds
+  with one, keying all ranking updates off the real Supabase user ID.
 
 ---
 

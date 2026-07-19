@@ -1,10 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { swipeRecordInput } from "@factfeed/contract";
 import { nextAffinity, nextDecayedCounters } from "@/ranking";
-import { publicProcedure, router } from "@/server/trpc";
+import { protectedProcedure, router } from "@/server/trpc";
 
 export const swipeRouter = router({
-  record: publicProcedure
+  record: protectedProcedure
     .input(swipeRecordInput)
     .mutation(async ({ ctx, input }): Promise<{ ok: true }> => {
       await ctx.db.$transaction(async (tx) => {
