@@ -189,7 +189,7 @@ probability-weighted random selection instead of a deterministic sort.
 
 ## Phase 6 — Scheduled top-up via Vercel Cron
 
-**Status:** Not Started
+**Status:** Done
 
 **Steps**
 
