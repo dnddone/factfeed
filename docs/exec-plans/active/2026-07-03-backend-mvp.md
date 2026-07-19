@@ -160,7 +160,7 @@ probability-weighted random selection instead of a deterministic sort.
 
 ## Phase 5 — Claude fact generation + typographic images
 
-**Status:** Not Started
+**Status:** Done
 
 **Steps**
 
