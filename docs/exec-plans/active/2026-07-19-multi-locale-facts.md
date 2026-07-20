@@ -49,7 +49,7 @@ behavior is unaffected and nothing is broken by an empty `"uk"` pool yet.
 
 ## Phase 2 — Locale-aware generation
 
-**Status:** Not Started
+**Status:** Done
 
 Generation can now actually produce Ukrainian content, scoped correctly for
 dedupe.

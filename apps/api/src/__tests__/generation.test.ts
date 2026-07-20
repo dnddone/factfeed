@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { CATEGORIES, type Category } from "@/constants/categories.constants";
+import { LOCALE_LANGUAGE_NAMES } from "@/constants/generation.constants";
 import {
+  buildPrompt,
   categoryBatchMix,
+  type CategoryMix,
   dedupeAgainstExisting,
   generatedFactSchema,
 } from "@/generation";
@@ -115,5 +118,22 @@ describe("categoryBatchMix", () => {
     const total = Object.values(mix).reduce((sum, count) => sum + count, 0);
 
     expect(total).toBe(30);
+  });
+});
+
+describe("buildPrompt", () => {
+  const mix = { animals: 3 } as CategoryMix;
+
+  it("injects the target language directive", () => {
+    expect(buildPrompt(mix, LOCALE_LANGUAGE_NAMES.uk)).toContain(
+      "Write every fact in Ukrainian.",
+    );
+  });
+
+  it("lists only categories with a non-zero slot count", () => {
+    const prompt = buildPrompt(mix, LOCALE_LANGUAGE_NAMES.en);
+
+    expect(prompt).toContain("- animals: 3");
+    expect(prompt).not.toContain("- food:");
   });
 });
