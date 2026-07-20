@@ -11,7 +11,7 @@ break the app when merged alone. Ship in order.
 
 ## Phase 1 — Schema + contract + locale-aware feed read
 
-**Status:** Not Started
+**Status:** Done
 
 Adds `locale` to the data model and contract, and makes the feed query and
 `/debug` page locale-aware. Write paths (generation, top-up) still only ever

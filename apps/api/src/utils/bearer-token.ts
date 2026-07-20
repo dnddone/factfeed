@@ -1,4 +1,6 @@
-export const bearerToken = (authorizationHeader: string | null): string | null => {
+export const bearerToken = (
+  authorizationHeader: string | null,
+): string | null => {
   if (!authorizationHeader?.startsWith("Bearer ")) {
     return null;
   }

@@ -46,8 +46,9 @@ const DebugPage = async (): Promise<JSX.Element> => {
             <div style={{ padding: 12 }}>
               <p style={{ fontSize: 14 }}>{post.content}</p>
               <p style={{ fontSize: 12, color: "#666" }}>
-                {post.category} · score {post.score.toFixed(2)} · 👍{" "}
-                {post.likeCount} 👎 {post.dislikeCount} · seen {post.seenCount}
+                {post.locale} · {post.category} · score {post.score.toFixed(2)}{" "}
+                · 👍 {post.likeCount} 👎 {post.dislikeCount} · seen{" "}
+                {post.seenCount}
               </p>
             </div>
           </div>

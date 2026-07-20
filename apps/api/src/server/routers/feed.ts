@@ -1,4 +1,8 @@
-import { feedListInput, type FeedListOutput } from "@factfeed/contract";
+import {
+  feedListInput,
+  type FeedListOutput,
+  type Locale,
+} from "@factfeed/contract";
 import { drawFeedPage } from "@/feed";
 import { publicProcedure, router } from "@/server/trpc";
 
@@ -9,13 +13,15 @@ export const feedRouter = router({
       const posts = await drawFeedPage({
         db: ctx.db,
         userId: ctx.userId,
+        locale: input.locale,
         limit: input.limit,
       });
 
       return {
-        posts: posts.map(({ id, content, imageUrl, createdAt }) => ({
+        posts: posts.map(({ id, content, locale, imageUrl, createdAt }) => ({
           id,
           content,
+          locale: locale as Locale,
           imageUrl,
           createdAt: createdAt.toISOString(),
         })),
