@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import type Anthropic from "@anthropic-ai/sdk";
+import type { Locale } from "@factfeed/contract";
 import { z } from "zod";
 import { anthropic } from "@/clients/anthropic";
 import type { db } from "@/clients/db";
@@ -9,6 +10,7 @@ import {
   GENERATION_BATCH_SIZE_CAP,
   GENERATION_MAX_TOKENS,
   GENERATION_MODEL,
+  LOCALE_LANGUAGE_NAMES,
   LOW_SAMPLE_THRESHOLD,
 } from "@/constants/generation.constants";
 import { laplaceScore, priorPostCounters } from "@/ranking";
@@ -177,26 +179,34 @@ const SUBMIT_FACTS_TOOL: Anthropic.Tool = {
   },
 };
 
-const buildPrompt = (mix: CategoryMix): string => {
+/**
+ * `languageName` is a human-readable name (e.g. "Ukrainian"), not a locale
+ * code — Claude writes each batch natively in that language (ADR 0011).
+ */
+export const buildPrompt = (mix: CategoryMix, languageName: string): string => {
   const lines = CATEGORIES.filter((category) => (mix[category] ?? 0) > 0).map(
     (category) => `- ${category}: ${mix[category]}`,
   );
 
   return [
     "Generate short, surprising, true facts for a swipeable facts feed app.",
+    `Write every fact in ${languageName}.`,
     "Each fact is one self-contained sentence, under 200 characters, no citation.",
     "Facts must not repeat each other. Submit exactly this many facts per category:",
     ...lines,
   ].join("\n");
 };
 
-const requestFacts = async (mix: CategoryMix): Promise<GeneratedFact[]> => {
+const requestFacts = async (
+  mix: CategoryMix,
+  languageName: string,
+): Promise<GeneratedFact[]> => {
   const response = await anthropic.messages.create({
     model: GENERATION_MODEL,
     max_tokens: GENERATION_MAX_TOKENS,
     tools: [SUBMIT_FACTS_TOOL],
     tool_choice: { type: "tool", name: SUBMIT_FACTS_TOOL.name },
-    messages: [{ role: "user", content: buildPrompt(mix) }],
+    messages: [{ role: "user", content: buildPrompt(mix, languageName) }],
   });
 
   const toolUse = response.content.find(
@@ -223,15 +233,17 @@ export type GenerateFactBatchResult = {
 export const generateFactBatch = async ({
   db: prisma,
   size,
+  locale,
 }: {
   db: typeof db;
   size: number;
+  locale: Locale;
 }): Promise<GenerateFactBatchResult> => {
   const cappedSize = Math.min(size, GENERATION_BATCH_SIZE_CAP);
 
   const [categoryStats, existingPosts] = await Promise.all([
     prisma.categoryStats.findMany(),
-    prisma.post.findMany({ select: { contentHash: true } }),
+    prisma.post.findMany({ where: { locale }, select: { contentHash: true } }),
   ]);
 
   const statsByCategory = new Map(
@@ -245,7 +257,7 @@ export const generateFactBatch = async ({
   );
 
   const mix = categoryBatchMix({ size: cappedSize, statsByCategory });
-  const facts = await requestFacts(mix);
+  const facts = await requestFacts(mix, LOCALE_LANGUAGE_NAMES[locale]);
   const deduped = dedupeAgainstExisting({
     facts,
     existingHashes: new Set(existingPosts.map((post) => post.contentHash)),
@@ -264,6 +276,7 @@ export const generateFactBatch = async ({
         data: {
           content: fact.content,
           contentHash: fact.contentHash,
+          locale,
           category: fact.category,
           likeCount: prior.likeCount,
           dislikeCount: prior.dislikeCount,

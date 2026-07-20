@@ -1,3 +1,5 @@
+import type { Locale } from "@factfeed/contract";
+
 /**
  * Bulk short-form generation is cost-sensitive, not latency-sensitive —
  * Haiku is the cheap/fast tier, sufficient for one-sentence facts. Floating
@@ -5,6 +7,16 @@
  * the generation boundary catches malformed output if a new snapshot drifts.
  */
 export const GENERATION_MODEL = "claude-haiku-4-5";
+
+/**
+ * Human-readable language name per locale, injected into the generation
+ * prompt (ADR 0011) so Claude writes each batch natively in the target
+ * language rather than translating English output.
+ */
+export const LOCALE_LANGUAGE_NAMES: Record<Locale, string> = {
+  en: "English",
+  uk: "Ukrainian",
+};
 
 export const GENERATION_MAX_TOKENS = 4096;
 

@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from "@factfeed/contract";
 import type { db } from "@/clients/db";
 import { generateFactBatch } from "@/generation";
 
@@ -37,9 +38,14 @@ export const runTopUp = async ({
     return { ranGeneration: false, poolSize };
   }
 
+  /**
+   * Phase 2 bridge: top-up still tops up the default locale only. Phase 3
+   * replaces this with a per-locale pool check + generation loop.
+   */
   const { created, duplicates } = await generateFactBatch({
     db: prisma,
     size: batchSize,
+    locale: DEFAULT_LOCALE,
   });
 
   return { ranGeneration: true, poolSize, created, duplicates };
