@@ -23,7 +23,8 @@ enum ImageSource {
 model Post {
   id             String      @id @default(cuid())
   content        String
-  contentHash    String      @unique
+  contentHash    String
+  locale         String      @default("en")
   category       String
   imageUrl       String?
   imageSource    ImageSource @default(TYPOGRAPHIC)
@@ -36,7 +37,9 @@ model Post {
 
   swipes Swipe[]
 
+  @@unique([locale, contentHash])
   @@index([category])
+  @@index([locale])
 }
 
 model User {

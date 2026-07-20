@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Post } from "./post";
+import { DEFAULT_LOCALE, LOCALES, type Post } from "./post";
 
 export const FEED_DEFAULT_LIMIT = 20;
 export const FEED_MAX_LIMIT = 50;
@@ -11,6 +11,7 @@ export const feedListInput = z.object({
     .positive()
     .max(FEED_MAX_LIMIT)
     .default(FEED_DEFAULT_LIMIT),
+  locale: z.enum(LOCALES).default(DEFAULT_LOCALE).catch(DEFAULT_LOCALE),
 });
 
 export type FeedListInput = z.infer<typeof feedListInput>;

@@ -91,7 +91,7 @@ before the existing unseen/weighted-sampling logic.
   English-only content, so backfilling `"en"` is correct, not a guess.
 - Drop the bare unique on `contentHash`, add `UNIQUE(locale, contentHash)` —
   safe given every existing row is currently `"en"` (no duplicate `(locale,
-  hash)` pairs are created by the migration).
+hash)` pairs are created by the migration).
 
 ## Edge cases
 
