@@ -76,7 +76,7 @@ dedupe.
 
 ## Phase 3 — Per-locale top-up
 
-**Status:** Not Started
+**Status:** Done
 
 Pool health is tracked per locale so one locale running dry isn't masked by
 another staying healthy.
