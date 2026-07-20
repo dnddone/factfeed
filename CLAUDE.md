@@ -276,6 +276,10 @@ const fn = (targetValue: string) =>
 - Vitest. Tests colocated in `__tests__/` next to source.
 - Filename: `<module>.test.ts`.
 - Keep tests simple — avoid unnecessary abstraction.
+- **`apps/mobile` is exempt during active development** — do not write tests
+  for the mobile app while it's being actively built. Postponed by decision;
+  revisit once the app stabilizes. (Backend and `packages/*` are still tested
+  as usual.)
 
 ## Documentation and Planning
 
