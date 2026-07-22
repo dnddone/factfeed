@@ -1,8 +1,8 @@
 # factfeed — Claude Instructions
 
 Swipeable facts feed (Tinder/Reels-style). Facts are generated on the backend,
-ranked by engagement, and served to a React Native client. Swipe right = like,
-left = dislike, down = next.
+ranked by engagement, and served to a React Native client. Swipe right = Keep
+(like), left = Pass (dislike), up = next, down = previous (back-nav).
 
 > `factfeed` is a working codename. The public brand is decided closer to
 > launch. Renaming is a find-replace on the codename — don't block work on it.
@@ -55,7 +55,7 @@ pnpm + Turborepo monorepo.
 
 ```
 apps/
-  mobile/        # Expo React Native app (frontend — deferred for now)
+  mobile/        # Expo React Native app (frontend)
   api/           # Next.js backend: route handlers, jobs, DB access
 packages/
   contract/      # shared TS types + zod schemas — the API contract
@@ -87,89 +87,19 @@ No catch-all `lib/`. Split by purpose instead:
   (e.g. `apps/api/src/ranking.ts`) — don't invent a folder for them until
   there are enough to warrant one.
 
-### API layer (`apps/api`)
+### App-specific conventions
 
-- Data-access functions are async, typed, no classes.
-- Object arguments use a named type — never an inline object literal in the
-  signature. Keep shared request/response types in `packages/contract`.
-- Validate all external input (request bodies, generation output) with the zod
-  schemas from `packages/contract` at the boundary.
-- Transform snake_case external data to camelCase at the boundary.
+`apps/api` and `apps/mobile` each carry their own `CLAUDE.md`, scoped to that
+directory (Claude Code loads it automatically when work touches that subtree,
+in addition to this file — never in place of it):
 
-### Mobile app (`apps/mobile`)
+- **`apps/api/CLAUDE.md`** — data-access function conventions (API layer).
+- **`apps/mobile/CLAUDE.md`** (`@AGENTS.md`) — Expo/React Native conventions:
+  routing, `base/`/`module/` components, file organization, types, context
+  providers, styling, state, performance, i18n, error/toast UI.
 
-Adapted from the web-app React conventions for Expo/React Native — same
-principles, native equivalents where the DOM doesn't apply.
-
-```
-app/                 # Expo Router routes (file-based) — thin, no business logic
-components/
-  base/               # primitives: Button, Card, etc.
-  module/             # composed: SwipeDeck, FactCard, etc.
-hooks/                # custom hooks
-context/              # React context providers
-clients/              # third-party client instantiation (API client, analytics)
-utils/                # shared utilities (type guards, animation helpers)
-```
-
-- **Routing**: Expo Router. Route files under `app/` only compose
-  hooks/components — no business logic, same rule as the web app's
-  page-level views.
-- **`base/`**: reusable primitives, `forwardRef` for refs, extend the
-  underlying RN component's own props type (`ViewProps`, `TextProps`,
-  `PressableProps`, ...) instead of `HTMLAttributes`.
-- **`module/`**: composed from `base/` components. Use the compound
-  component pattern (shared context + subcomponents) for anything with
-  multiple coordinated pieces, instead of one component with many render
-  props or booleans.
-- Component props type is always named `Props`, declared directly above the
-  component it belongs to. Type components with `React.FC<Props>`.
-- Avoid boolean props that toggle behavior (`isEditing`, `showFooter`) —
-  each one doubles the states the component has to handle. Prefer
-  composition or an explicit variant component instead.
-- **Styling**: NativeWind + `tailwind-variants` (`tv()`) — same authoring
-  pattern as the web app, className strings via NativeWind, `tv()` for
-  variants instead of boolean props:
-
-  ```tsx
-  const button = tv({
-    base: "flex-row items-center rounded-lg px-4 py-2",
-    variants: {
-      variant: { primary: "bg-blue-600", ghost: "bg-transparent" },
-    },
-    defaultVariants: { variant: "primary" },
-  });
-
-  type Props = PressableProps & VariantProps<typeof button>;
-
-  const Button: React.FC<Props> = ({ variant, className, ...props }) => (
-    <Pressable className={button({ variant, className })} {...props} />
-  );
-  ```
-
-- **State**: React Query v5 for server state (`["resource", id]` query
-  keys), Context API for global UI state, `useState` for local state — none
-  of this is DOM-dependent, same as web.
-- **Contract**: never redefine request/response shapes for API calls —
-  import from `packages/contract`. Local component prop types stay local.
-- **Performance**:
-  - Extract expensive child work into a `memo()`-wrapped component so a
-    parent can early-return (e.g. a loading state) before the child
-    computes anything.
-  - Effect dependencies: depend on primitives (`user.id`), not objects
-    (`user`) — avoids re-running on unrelated field changes.
-  - Derive state during render instead of syncing it with a `useEffect` +
-    extra `useState`.
-  - `Promise.all()` independent async calls — never await them
-    sequentially.
-  - Import icons/utilities directly from their source file, not the
-    package barrel — barrel imports slow Metro bundling and cold start.
-- **i18n**: `react-i18next`, no hardcoded UI text. If a translation key is
-  built dynamically, add an `i18next-scanner` comment block listing every
-  possible key so the scanner can find them.
-
-Testing setup and error/toast UI conventions for mobile aren't decided yet
-— revisit once mobile work actually starts.
+Everything below this point is cross-cutting — it applies regardless of which
+app you're working in.
 
 ## TypeScript
 
@@ -331,11 +261,14 @@ contract — read it before adding files.
 
 ## Important process rules
 
-- **If you discover a new rule during development, add it to this file before
-  finishing** (or to the right `docs/` file if it's a design or planning
-  artifact). Don't let project-wide knowledge live only in conversation history.
-- **After every correction from the user, ask: is this specific to this line, or
-  a general pattern?** If general, extract it into this file immediately.
+- **If you discover a new rule during development, add it before finishing** —
+  this file if it's cross-cutting, `apps/api/CLAUDE.md` /
+  `apps/mobile/AGENTS.md` if it's specific to that app, or the right `docs/`
+  file if it's a design or planning artifact. Don't let project-wide knowledge
+  live only in conversation history.
+- **After every correction from the user, ask: is this specific to this line, a
+  general pattern for one app, or cross-cutting?** Extract it into the file
+  that matches its scope immediately.
 - **Record architectural insights and verified facts** — when you investigate a
   dependency's behavior, write it down in the appropriate `docs/` location
   instead of relying on memory.
