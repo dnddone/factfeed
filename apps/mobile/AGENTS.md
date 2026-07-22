@@ -10,7 +10,7 @@ both the Simulator and physical-device Expo Go.
 Adapted from the web-app React conventions for Expo/React Native — same
 principles, native equivalents where the DOM doesn't apply. Cross-cutting
 conventions (commits, TypeScript, naming, destructuring, testing, docs
-workflow) live in the repo-root `CLAUDE.md` — this file covers only what's
+workflow) live in the repo-root `AGENTS.md` — this file covers only what's
 specific to `apps/mobile`.
 
 ## Source layout

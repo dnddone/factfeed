@@ -2,7 +2,7 @@
 
 Next.js backend: route handlers, jobs, DB access. Deploys independently
 (root = `apps/api`). Cross-cutting conventions (commits, TypeScript, naming,
-destructuring, testing, docs workflow) live in the repo-root `CLAUDE.md` —
+destructuring, testing, docs workflow) live in the repo-root `AGENTS.md` —
 this file covers only what's specific to `apps/api`.
 
 ## API layer
