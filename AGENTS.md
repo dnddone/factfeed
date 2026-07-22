@@ -93,7 +93,8 @@ No catch-all `lib/`. Split by purpose instead:
 directory (Claude Code loads it automatically when work touches that subtree,
 in addition to this file — never in place of it):
 
-- **`apps/api/CLAUDE.md`** — data-access function conventions (API layer).
+- **`apps/api/CLAUDE.md`** (`@AGENTS.md`) — data-access function conventions
+  (API layer).
 - **`apps/mobile/CLAUDE.md`** (`@AGENTS.md`) — Expo/React Native conventions:
   routing, `base/`/`module/` components, file organization, types, context
   providers, styling, state, performance, i18n, error/toast UI.
