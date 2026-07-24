@@ -19,13 +19,16 @@ specific to `apps/mobile`.
 app/                 # Expo Router routes (file-based, project root, un-aliased)
 src/                  # everything else — aliased as @/*
   components/
-    base/               # primitives: Button, Card, etc.
-    module/             # composed: SwipeDeck, FactCard, etc.
+    shared/             # generic primitives, zero domain knowledge: Button, Card
+    <top-level>.tsx     # cross-screen, domain-specific: SwipeDeck, FactCard
+    <ScreenName>/        # single-screen components — created only once one exists
   hooks/                # custom hooks
   context/              # React context providers
   clients/              # third-party client instantiation (API client, analytics)
-  utils/                # shared utilities (type guards, animation helpers)
+  utils/                # shared, abstract utilities (type guards, animation helpers)
+  utils/helpers/        # domain-scoped helpers — not barrel-exported
   types/                # shared local types not tied to packages/contract
+  content/              # structured UI data paired with i18n keys (see "Content")
 ```
 
 `app/` stays at the project root (Expo Router requirement); everything else
@@ -34,16 +37,25 @@ a relative `../../hooks/useFeed`.
 
 ## Components
 
+Three tiers, by reach — not by whether a component is a "primitive" vs.
+"composed":
+
+- **`components/shared/`**: generic primitives with zero domain knowledge —
+  reusable in any RN app (`Button`, `Card`, `Input`). `forwardRef` for refs,
+  extend the underlying RN component's own props type (`ViewProps`,
+  `TextProps`, `PressableProps`, ...) instead of `HTMLAttributes`.
+- **`components/` (top level)**: cross-screen but domain-specific
+  (`SwipeDeck`, `FactCard`) — knows about facts/swipes, but isn't tied to one
+  screen. Use the compound component pattern (shared context + subcomponents)
+  for anything with multiple coordinated pieces, instead of one component
+  with many render props or booleans.
+- **`components/<ScreenName>/`**: used by exactly one screen. Don't create
+  this tier speculatively — start the component inline in the screen file
+  under `app/`, and only extract it into `components/<ScreenName>/` once it
+  exists and is clearly single-screen-only.
 - **Routing**: Expo Router. Route files under `app/` only compose
   hooks/components — no business logic, same rule as the web app's
   page-level views.
-- **`base/`**: reusable primitives, `forwardRef` for refs, extend the
-  underlying RN component's own props type (`ViewProps`, `TextProps`,
-  `PressableProps`, ...) instead of `HTMLAttributes`.
-- **`module/`**: composed from `base/` components. Use the compound
-  component pattern (shared context + subcomponents) for anything with
-  multiple coordinated pieces, instead of one component with many render
-  props or booleans.
 - **File organization** (new files, not a retrofit of existing ones):
   - `index.ts` is for imports/exports only — never define a component inside it.
   - One component per file by default.
@@ -54,15 +66,15 @@ a relative `../../hooks/useFeed`.
 
     ```
     Incorrect — redundant folder + index
-    src/components/module/SwipeDeck/
+    src/components/SwipeDeck/
       SwipeDeck.tsx
       index.ts
 
     Correct — flat file (no siblings yet)
-    src/components/module/SwipeDeck.tsx
+    src/components/SwipeDeck.tsx
 
     Correct — folder, because it has siblings
-    src/components/module/SwipeDeck/
+    src/components/SwipeDeck/
       SwipeDeck.tsx
       SwipeDeckCard.tsx
       useSwipeDeck.ts
@@ -87,6 +99,22 @@ a relative `../../hooks/useFeed`.
 - **Type guards**: use named guard utilities from `src/utils/` (`isString`,
   `isNumber`, `isBoolean`, `isNullable`, `isObject`, `isArray`, `isFunction`)
   instead of raw `typeof`/`Array.isArray` checks inline.
+
+## Content
+
+`src/content/` holds structured UI data that pairs a value with an i18n
+key — option lists, lookup tables, anything beyond a single string. Plain
+copy still goes through `react-i18next` directly in the component;
+`content/` is only for structured data. One file per concern, named
+`<concern>.content.ts`. Unlike `constants/` (MACRO_CASE, logic values),
+`content/` exports stay camelCase — they're consumed as UI data, not logic:
+
+```ts
+export const categoryFilterOptions = [
+  { value: "science", labelKey: "categories.science" },
+  { value: "history", labelKey: "categories.history" },
+] as const;
+```
 
 ## Context providers
 
