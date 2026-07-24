@@ -1,17 +1,22 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 
 /**
  * Placeholder feed screen. The immersive swipe deck replaces this in the feed
- * phase; for now it verifies the app boots and the dark canvas renders.
+ * phase; for now it verifies the app boots and the dark canvas renders. The
+ * "factfeed" wordmark is the brand mark, not UI copy — it stays literal
+ * across locales, unlike the tagline below it.
  */
 const FeedScreen: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.screen}>
       <Text style={styles.wordmark}>
         fact<Text style={styles.accent}>feed</Text>
       </Text>
-      <Text style={styles.tagline}>a quiet stream of facts</Text>
+      <Text style={styles.tagline}>{t("feed.tagline")}</Text>
     </View>
   );
 };
