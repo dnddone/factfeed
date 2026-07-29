@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { i18next } from "@/clients/i18n";
 import { queryClient, trpc, trpcClient } from "@/clients/trpc";
+import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
 
 /**
  * Root layout. The feed is immersive, so the native header is hidden and the
@@ -31,7 +32,7 @@ const RootLayout: React.FC = () => {
               <Stack
                 screenOptions={{
                   headerShown: false,
-                  contentStyle: { backgroundColor: "#0B0A09" },
+                  contentStyle: { backgroundColor: APP_BACKGROUND_COLOR },
                 }}
               />
             </SafeAreaProvider>
@@ -39,6 +40,7 @@ const RootLayout: React.FC = () => {
         </QueryClientProvider>
       </trpc.Provider>
     </GestureHandlerRootView>
+
   );
 };
 

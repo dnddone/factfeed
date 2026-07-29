@@ -2,6 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 
+import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
+
 /**
  * Placeholder feed screen. The immersive swipe deck replaces this in the feed
  * phase; for now it verifies the app boots and the dark canvas renders. The
@@ -26,7 +28,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0B0A09",
+    backgroundColor: APP_BACKGROUND_COLOR,
     gap: 10,
   },
   wordmark: {

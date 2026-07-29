@@ -96,8 +96,8 @@ in addition to this file — never in place of it):
 - **`apps/api/CLAUDE.md`** (`@AGENTS.md`) — data-access function conventions
   (API layer).
 - **`apps/mobile/CLAUDE.md`** (`@AGENTS.md`) — Expo/React Native conventions:
-  routing, three-tier components, file organization, types, content, context
-  providers, styling, state, performance, i18n, error/toast UI.
+  routing, three-tier components, file organization, types, content, providers,
+  styling, state, performance, i18n, error/toast UI.
 
 Everything below this point is cross-cutting — it applies regardless of which
 app you're working in.
