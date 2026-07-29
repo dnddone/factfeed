@@ -1,16 +1,16 @@
-import "../global.css";
-
+import React from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
 import { I18nextProvider } from "react-i18next";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
 import { i18next } from "@/clients/i18n";
 import { queryClient, trpc, trpcClient } from "@/clients/trpc";
-import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
+
+import "../global.css";
 
 /**
  * Root layout. The feed is immersive, so the native header is hidden and the
@@ -40,7 +40,6 @@ const RootLayout: React.FC = () => {
         </QueryClientProvider>
       </trpc.Provider>
     </GestureHandlerRootView>
-
   );
 };
 
