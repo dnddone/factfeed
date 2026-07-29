@@ -30,14 +30,14 @@ export default [
             ],
             // React/React Native first, then all other external packages
             ["^(react|react-native)(/.*)?$", "^@?\\w"],
-            // Internal: foundational layers (types → constants → clients → utils → hooks → context → content)
+            // Internal: foundational layers (types → constants → clients → utils → hooks → providers → content)
             [
               "^@/types",
               "^@/constants",
               "^@/clients",
               "^@/utils",
               "^@/hooks",
-              "^@/context",
+              "^@/providers",
               "^@/content",
             ],
             // Internal: UI layer (components)
