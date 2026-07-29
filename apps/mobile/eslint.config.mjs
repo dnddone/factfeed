@@ -24,13 +24,20 @@ export default [
         "error",
         {
           groups: [
-            // Node built-ins
+            /**
+             * Node built-ins
+             */
             [
               "^(assert|buffer|child_process|cluster|console|constants|crypto|dgram|dns|domain|events|fs|http|https|module|net|os|path|punycode|querystring|readline|repl|stream|string_decoder|sys|timers|tls|tty|url|util|vm|zlib|worker_threads|perf_hooks)(/.*|$)",
             ],
-            // React/React Native first, then all other external packages
+            /**
+             * React/React Native first, then all other external packages
+             */
             ["^(react|react-native)(/.*)?$", "^@?\\w"],
-            // Internal: foundational layers (types → constants → clients → utils → hooks → providers → content)
+            /**
+             * Internal: foundational layers (types → constants → clients →
+             * utils → hooks → providers → content)
+             */
             [
               "^@/types",
               "^@/constants",
@@ -40,15 +47,25 @@ export default [
               "^@/providers",
               "^@/content",
             ],
-            // Internal: UI layer (components)
+            /**
+             * Internal: UI layer (components)
+             */
             ["^@/components"],
-            // Internal: any remaining @/ paths
+            /**
+             * Internal: any remaining @/ paths
+             */
             ["^@/"],
-            // Side-effect imports
+            /**
+             * Side-effect imports
+             */
             ["^\\u0000"],
-            // Relative parent imports
+            /**
+             * Relative parent imports
+             */
             ["^\\.\\.(?!/?$)", "^\\.\\./?$"],
-            // Relative sibling imports + CSS
+            /**
+             * Relative sibling imports + CSS
+             */
             ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$", "^.+\\.s?css$"],
           ],
         },
