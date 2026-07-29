@@ -23,7 +23,7 @@ src/                  # everything else — aliased as @/*
     <top-level>.tsx     # cross-screen, domain-specific: SwipeDeck, FactCard
     <ScreenName>/        # single-screen components — created only once one exists
   hooks/                # custom hooks
-  context/              # React context providers
+  providers/            # React context providers
   clients/              # third-party client instantiation (API client, analytics)
   utils/                # shared, abstract utilities (type guards, animation helpers)
   utils/helpers/        # domain-scoped helpers — not barrel-exported
@@ -116,9 +116,9 @@ export const categoryFilterOptions = [
 ] as const;
 ```
 
-## Context providers
+## Providers
 
-Pattern: `src/context/<feature>-provider.tsx` — define a `State` type
+Pattern: `src/providers/<feature>-provider.tsx` — define a `State` type
 (getters + setters), `createContext<State>()`, export the provider component
 plus a `useX()` hook that throws if called outside the provider.
 
