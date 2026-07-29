@@ -40,7 +40,7 @@ time-series storage needed, same O(1)-per-swipe cost as today.
 ## Decision
 
 **Add `updatedAt` to `Swipe`** (`@updatedAt`, Prisma-managed) — the time the
-row's *current* `direction` started contributing. `createdAt` is left
+row's _current_ `direction` started contributing. `createdAt` is left
 untouched as the original swipe time (audit/analytics).
 
 **`swipe.record` becomes edit-aware.** On a call for a `(userId, postId)` that
@@ -75,7 +75,7 @@ affinity       = affinity * decay - affinityDelta(oldDirection) * reverseDecay +
 where `likeDelta`/`dislikeDelta`/`affinityDelta` are the same per-direction
 weights `nextDecayedCounters`/`nextAffinity` already use today (LIKE → like +1;
 DISLIKE → dislike +1 / affinity −1; SKIP → all zero). This is exact regardless
-of how many *other* users' swipes touched the aggregate between the original
+of how many _other_ users' swipes touched the aggregate between the original
 swipe and the edit — decay composition (above) guarantees it.
 
 **Skip never overwrites an existing verdict.** If a card already carries a
@@ -105,7 +105,7 @@ same-direction no-op if it's ever called anyway.
   that swipe's own `updatedAt`.
 - **Ordering assumption**: this assumes edits are applied in real time
   (`oldEffectiveAt < now` for the edit being processed) and that concurrent
-  edits to the *same* swipe are serialized by the existing `$transaction` +
+  edits to the _same_ swipe are serialized by the existing `$transaction` +
   row lookup — no new concurrency mechanism needed beyond what's there today.
 - **Does not enable arbitrary swipe history rewrites** — only a single
   "current direction, current effective time" per `(userId, postId)` is
