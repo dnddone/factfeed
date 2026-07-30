@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import type { Post } from "@factfeed/contract";
 
 import { trpc } from "@/clients/trpc";

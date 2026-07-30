@@ -1,8 +1,9 @@
 import React from "react";
 import { Text, View } from "react-native";
-import type { Post } from "@factfeed/contract";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
+
+import type { Post } from "@factfeed/contract";
 
 import { getFactGradient } from "@/utils/gradient";
 
