@@ -1,50 +1,44 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
+import { useFeed } from "@/hooks/useFeed";
+
+import { FactCard } from "@/components/module/FactCard";
 
 /**
- * Placeholder feed screen. The immersive swipe deck replaces this in the feed
- * phase; for now it verifies the app boots and the dark canvas renders. The
- * "factfeed" wordmark is the brand mark, not UI copy — it stays literal
- * across locales, unlike the tagline below it.
+ * Guest feed read (Phase 1). A single card with a temporary tap-to-advance
+ * control — the gesture deck replaces this control in Phase 3.
  */
 const FeedScreen: React.FC = () => {
   const { t } = useTranslation();
+  const { currentPost, isLoading, isEmpty, next } = useFeed();
 
   return (
-    <View style={styles.screen}>
-      <Text style={styles.wordmark}>
-        fact<Text style={styles.accent}>feed</Text>
-      </Text>
-      <Text style={styles.tagline}>{t("a quiet stream of facts")}</Text>
+    <View className="flex-1" style={{ backgroundColor: APP_BACKGROUND_COLOR }}>
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <Text className="font-mono text-xs uppercase tracking-widest text-[#F7F1E7] opacity-60">
+            {t("Loading")}
+          </Text>
+        </View>
+      ) : isEmpty || !currentPost ? (
+        <View className="flex-1 items-center justify-center gap-4 px-8">
+          <Text className="text-xl font-semibold tracking-tight text-[#F7F1E7]">
+            {t("You're all caught up")}
+          </Text>
+          <Text className="text-center text-sm text-[#F7F1E7] opacity-60">
+            {t("New facts are brewing. Check back in a bit.")}
+          </Text>
+        </View>
+      ) : (
+        <Pressable className="flex-1" onPress={next}>
+          <FactCard post={currentPost} />
+        </Pressable>
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: APP_BACKGROUND_COLOR,
-    gap: 10,
-  },
-  wordmark: {
-    color: "#F7F1E7",
-    fontSize: 30,
-    fontWeight: "600",
-    letterSpacing: -0.5,
-  },
-  accent: {
-    color: "#E9A23B",
-  },
-  tagline: {
-    color: "rgba(247,241,231,0.52)",
-    fontSize: 14,
-    fontFamily: "monospace",
-  },
-});
 
 export default FeedScreen;
