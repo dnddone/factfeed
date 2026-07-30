@@ -32,8 +32,13 @@ export default [
             ],
             /**
              * React/React Native first, then all other external packages
+             * (workspace `@factfeed/*` packages get their own group below)
              */
-            ["^(react|react-native)(/.*)?$", "^@?\\w"],
+            ["^(react|react-native)(/.*)?$", "^@(?!factfeed/)\\w", "^[^@.]"],
+            /**
+             * Workspace packages (`@factfeed/contract`, `@factfeed/api`, …)
+             */
+            ["^@factfeed/"],
             /**
              * Internal: foundational layers (types → constants → clients →
              * utils → hooks → providers → content)
