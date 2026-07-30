@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "i18n:scan": "i18next-scanner --config i18next-scanner.config.cjs 'app/**/*.{ts,tsx}' 'src/**/*.{ts,tsx}'"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
@@ -44,6 +45,8 @@
     "eslint": "^9.18.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-plugin-simple-import-sort": "^14.0.0",
+    "i18next-scanner": "^4.6.0",
+    "i18next-scanner-typescript": "^1.2.1",
     "typescript": "~5.9.2"
   }
 }

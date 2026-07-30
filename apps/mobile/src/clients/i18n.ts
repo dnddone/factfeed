@@ -11,6 +11,8 @@ i18next.use(initReactI18next).init({
   },
   lng: "en",
   fallbackLng: "en",
+  keySeparator: false,
+  nsSeparator: false,
   interpolation: {
     escapeValue: false,
   },
