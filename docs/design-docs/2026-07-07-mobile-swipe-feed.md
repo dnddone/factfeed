@@ -38,12 +38,12 @@ The feed is a **three-card bidirectional stack**: **previous** / **current** /
 round-trip. The **next** card additionally peeks behind the current one during
 a horizontal drag.
 
-| Gesture              | Result                                                                 |
-| -------------------- | ----------------------------------------------------------------------- |
-| **Swipe up**          | Next fact. Records `SKIP` when the card has no prior verdict; no auth gate. |
-| **Swipe down**        | Previous fact — re-surfaces the card just swiped past, from local history. |
-| **Swipe right**       | **Keep** (like). Card flies off; the peeking card becomes current. |
-| **Swipe left**        | **Pass** (dislike). Same, mirrored. |
+| Gesture         | Result                                                                      |
+| --------------- | --------------------------------------------------------------------------- |
+| **Swipe up**    | Next fact. Records `SKIP` when the card has no prior verdict; no auth gate. |
+| **Swipe down**  | Previous fact — re-surfaces the card just swiped past, from local history.  |
+| **Swipe right** | **Keep** (like). Card flies off; the peeking card becomes current.          |
+| **Swipe left**  | **Pass** (dislike). Same, mirrored.                                         |
 
 - **Peek-behind depth**: during a horizontal drag the next card scales
   `.92 → 1` and un-offsets, revealing part of it as the current card clears.
@@ -81,8 +81,7 @@ color in the room. Futuristic, clean, minimal.
 
 - **Card face**: **native text** — `Post.content` rendered in RN over an
   app-drawn gradient. Full typographic control, dynamic type, accessibility, and
-  per-card theming. `Post.imageUrl` (the `@vercel/og` typographic card, ADR
-  0006) is used only as a share/OG asset, **not** as the in-feed card face.
+  per-card theming. `Post.imageUrl` (the `@vercel/og` typographic card, ADR 0006) is used only as a share/OG asset, **not** as the in-feed card face.
 - **Palette**: canvas `#0B0A09` (warm near-black), text `#F7F1E7` (warm
   off-white), Keep/accent `#E9A23B` (amber), Pass `#8FA0B4` (cool slate). Amber
   and slate are semantic (verdict) colors, used sparingly — not a general accent.
@@ -155,7 +154,7 @@ it's a problem.
    reversal so ranking reflects only the new direction, not both.
 
 **On swipe up (next)** — if the card has no prior verdict, advances and
-**records a `SKIP`** for authed users so the post is marked *seen* and excluded
+**records a `SKIP`** for authed users so the post is marked _seen_ and excluded
 from future `feed.list` draws (`SKIP` is a pure seen-marker: 0 like/dislike
 weight, 0 affinity delta, `seenCount++`, see `apps/api/src/ranking.ts`). If the
 card already has a Like/Dislike, swiping up just navigates — no call is made
@@ -222,13 +221,13 @@ that card again.
 ## Scope changes vs. the product spec
 
 The product spec listed these as out of scope for slice 1; this design pulls the
-first two in (a settings *shell*, and onboarding) because the interaction model
+first two in (a settings _shell_, and onboarding) because the interaction model
 now depends on them:
 
 - **Onboarding coach** — required now that the app is gesture-only; users need to
   be taught the swipe. In scope.
 - **Settings / About shell** — the header menu + `(menu)` route group are built
-  now; screen *content* lands incrementally. The feed + auth remain the only
+  now; screen _content_ lands incrementally. The feed + auth remain the only
   fully-built screens in slice 1.
 - Still out of scope: category filters, push/sharing/monetization, guest-swipe
   queueing.
@@ -283,6 +282,6 @@ Uses `Post`, `FeedListOutput`, `SwipeInput`, `SwipeDirection`, `Locale` from
 
 - Apple / Google sign-in (fast-follow after magic link).
 - Guest-swipe queueing + merge after sign-in (ADR 0009 — deferred).
-- Settings/About screen *content* beyond the shell.
+- Settings/About screen _content_ beyond the shell.
 - How far back local history extends (e.g. cap at N cards, or the whole
   session) — a tuning detail for the exec-plan, not an architectural question.

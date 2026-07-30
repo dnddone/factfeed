@@ -179,9 +179,45 @@ const Button: React.FC<Props> = ({ variant, className, ...props }) => (
 
 ## i18n
 
-`react-i18next`, no hardcoded UI text. If a translation key is built
-dynamically, add an `i18next-scanner` comment block listing every possible
-key so the scanner can find them.
+`react-i18next`, no hardcoded UI text. **The key is the literal English UI
+text itself** — never a semantic path (`t("a quiet stream of facts")`, not
+`t("feed.tagline")`). `en.json` is therefore an identity map (`{ "text":
+"text" }`); every other locale's JSON maps that same English key to its
+translation. Stored flat in `src/clients/locales/{{lng}}.json` (no nesting —
+`keySeparator`/`nsSeparator` are both off).
+
+Run `pnpm --filter @factfeed/mobile i18n:scan` after adding or changing any
+`t()` call — it adds new keys (`en` gets the key itself as its value; every
+other locale gets an empty-string placeholder to fill in by hand) and removes
+keys no longer referenced in source. Never hand-edit the locale JSON files
+directly; let the scanner own them.
+
+If a translation key is built dynamically (e.g. looked up from an array or
+record), `i18next-scanner` cannot detect it via static analysis. Add a block
+comment listing every possible key so the scanner still picks them up:
+
+```ts
+/**
+ * Needs for i18next-scanner
+ * t('Mon')
+ * t('Tue')
+ * t('Wed')
+ * t('Thu')
+ * t('Fri')
+ * t('Sat')
+ * t('Sun')
+ */
+const DAY_KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+/**
+ * Runtime usage — key resolved dynamically, scanner can't see it without
+ * the comment block above
+ */
+t(DAY_KEYS[dayIndex]);
+```
+
+Never remove or rewrite these comments — they are load-bearing for the
+scanner.
 
 ## Error/toast UI
 

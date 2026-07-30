@@ -1,9 +1,11 @@
 /**
  * Metro config tuned for the pnpm monorepo: watch the workspace root so shared
  * packages (e.g. @factfeed/contract) hot-reload, and resolve modules from both
- * the app's and the root's node_modules.
+ * the app's and the root's node_modules. Wrapped with `withNativeWind` so
+ * Metro processes `global.css` into the NativeWind runtime.
  */
 const { getDefaultConfig } = require("expo/metro-config");
+const { withNativeWind } = require("nativewind/metro");
 const path = require("path");
 
 const projectRoot = __dirname;
@@ -17,4 +19,4 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, "node_modules"),
 ];
 
-module.exports = config;
+module.exports = withNativeWind(config, { input: "./global.css" });

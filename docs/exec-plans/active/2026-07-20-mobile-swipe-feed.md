@@ -142,7 +142,7 @@ sends the token — the prerequisite for verdicts in Phase 3.
 
 The heart of the app. Immersive three-card bidirectional deck built **from the
 start** (previous / current / next) to avoid a 2→3 retrofit. Browse + judge.
-Back-nav is read-only here (re-read a past card); *changing* a past verdict
+Back-nav is read-only here (re-read a past card); _changing_ a past verdict
 waits for Phase 5 (needs backend Phase 4).
 
 **Steps**
@@ -160,7 +160,7 @@ waits for Phase 5 (needs backend Phase 4).
   - **peek-behind**: next card scales `.92 → 1` during a horizontal drag.
   - thresholds / spring-back / fly-off / ±9° rotate per the design doc.
   - re-Skip on an already-skipped card is a client no-op (history knows the
-    verdict); revisiting a *judged* card shows its verdict but re-swiping is a
+    verdict); revisiting a _judged_ card shows its verdict but re-swiping is a
     no-op for now (current backend is first-write-wins — safe).
 - `src/components/module/GestureCoach.tsx`: first-run wiggle (left ghosted Pass,
   right ghosted Keep), dismiss on first touch, persist `hasSeenCoach`

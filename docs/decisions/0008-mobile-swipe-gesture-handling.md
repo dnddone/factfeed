@@ -52,7 +52,7 @@ verdict.
 - **Vertical axis (paging)**: up reveals `next` (mounting a fresh card from
   the local history/pagination buffer), down reveals `previous` (re-mounting
   the card just swiped past, from local history — no network call).
-- **Horizontal axis (verdict)**: only active on the *current* card. Dragging
+- **Horizontal axis (verdict)**: only active on the _current_ card. Dragging
   right/left shows the Keep/Pass stamp and, on release past threshold, records
   the verdict and advances (promoting the peeking card, same as before).
 - **Re-doing an unchanged action is a no-op at the gesture layer**: swiping up
@@ -60,7 +60,7 @@ verdict.
   direction as the card's existing verdict, doesn't re-fire `swipe.record`
   from the client (the local history already holds the verdict) — the server
   is also idempotent here as a backstop (ADR 0012).
-- **Changing a verdict**: horizontal swipe on a *previously-judged* card
+- **Changing a verdict**: horizontal swipe on a _previously-judged_ card
   (reached via back-nav) is allowed and calls `swipe.record` with the new
   direction — this is the "switch Like ↔ Dislike" case, handled server-side by
   ADR 0012's reversible ranking update. Swipe-up (next) never overwrites an
