@@ -1,4 +1,5 @@
 import { AppState } from "react-native";
+import type { AppRouter } from "@factfeed/api/src/server/routers/_app";
 import NetInfo from "@react-native-community/netinfo";
 import {
   focusManager,
@@ -7,8 +8,6 @@ import {
 } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
-
-import type { AppRouter } from "@factfeed/api/src/server/routers/_app";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
