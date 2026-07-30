@@ -1,0 +1,71 @@
+name: i18n-translations-check
+
+on:
+  pull_request:
+    paths:
+      - "apps/mobile/**"
+
+jobs:
+  translation-keys:
+    name: Check translation keys
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Snapshot EN translation before scan
+        run: cp apps/mobile/src/clients/locales/en.json /tmp/en-before.json
+
+      - name: Scan for translation keys
+        run: pnpm --filter @factfeed/mobile i18n:scan
+
+      - name: Check translation files are in sync
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const before = JSON.parse(fs.readFileSync('/tmp/en-before.json', 'utf8'));
+            const after = JSON.parse(fs.readFileSync('apps/mobile/src/clients/locales/en.json', 'utf8'));
+
+            const beforeKeys = new Set(Object.keys(before));
+            const afterKeys = new Set(Object.keys(after));
+
+            const added = [...afterKeys].filter(k => !beforeKeys.has(k));
+            const removed = [...beforeKeys].filter(k => !afterKeys.has(k));
+
+            if (added.length === 0 && removed.length === 0) {
+              core.info('Translation keys are in sync.');
+              return;
+            }
+
+            const lines = ['Translation files are out of sync. Run `pnpm --filter @factfeed/mobile i18n:scan` and commit the result.\n'];
+            if (added.length > 0) lines.push(`Added keys (${added.length}):\n${added.map(k => `  - ${k}`).join('\n')}`);
+            if (removed.length > 0) lines.push(`\nRemoved keys (${removed.length}):\n${removed.map(k => `  - ${k}`).join('\n')}`);
+            core.setFailed(lines.join('\n'));
+
+      - name: Check Ukrainian translations are complete
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const en = JSON.parse(fs.readFileSync('apps/mobile/src/clients/locales/en.json', 'utf8'));
+            const uk = JSON.parse(fs.readFileSync('apps/mobile/src/clients/locales/uk.json', 'utf8'));
+
+            const missing = Object.keys(en).filter(k => !uk[k]);
+
+            if (missing.length === 0) {
+              core.info('All Ukrainian translations are present.');
+              return;
+            }
+
+            core.setFailed(`Missing Ukrainian translations (${missing.length} keys):\n${missing.map(k => `  - ${k}`).join('\n')}`);
