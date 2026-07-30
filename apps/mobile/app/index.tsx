@@ -18,7 +18,7 @@ const FeedScreen: React.FC = () => {
       <Text style={styles.wordmark}>
         fact<Text style={styles.accent}>feed</Text>
       </Text>
-      <Text style={styles.tagline}>{t("feed.tagline")}</Text>
+      <Text style={styles.tagline}>{t("a quiet stream of facts")}</Text>
     </View>
   );
 };
