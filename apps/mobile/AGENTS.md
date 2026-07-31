@@ -56,6 +56,12 @@ Three tiers, by reach — not by whether a component is a "primitive" vs.
 - **Routing**: Expo Router. Route files under `app/` only compose
   hooks/components — no business logic, same rule as the web app's
   page-level views.
+  - Typed routes (`href="/new-screen"`) only type-check once
+    `.expo/types/router.d.ts` has been regenerated for the new file — that
+    happens while `expo start` (the dev server) is running, not on a cold
+    `tsc`. After adding a route file, briefly run the dev server once (or
+    just `pnpm --filter @factfeed/mobile start` and let Metro boot) before
+    trusting a `typecheck` failure that only mentions the new path.
 - **File organization** (new files, not a retrofit of existing ones):
   - `index.ts` is for imports/exports only — never define a component inside it.
   - One component per file by default.
