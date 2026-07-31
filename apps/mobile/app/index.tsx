@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
 import { useFeed } from "@/hooks/useFeed";
 
-import { FactCard } from "@/components/module/FactCard";
+import { FactCard } from "@/components/FactCard";
 
 /**
  * Guest feed read (Phase 1). A single card with a temporary tap-to-advance

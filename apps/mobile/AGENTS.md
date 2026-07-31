@@ -162,6 +162,19 @@ const Button: React.FC<Props> = ({ variant, className, ...props }) => (
   import from `packages/contract`. Local component prop types stay local.
 - Transform snake_case external data (e.g. Supabase's `user_metadata`,
   `created_at`) to camelCase at the boundary — same rule as `apps/api`.
+- `useEffect` callbacks can't be `async` themselves — when the effect body
+  needs `await`, define an inner `async` function named `run` and call it
+  immediately:
+
+  ```ts
+  useEffect(() => {
+    const run = async () => {
+      await doSomething();
+    };
+
+    run();
+  }, []);
+  ```
 
 ## Performance
 

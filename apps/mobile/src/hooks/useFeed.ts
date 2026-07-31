@@ -34,13 +34,23 @@ export const useFeed = (): UseFeedResult => {
       const locale = getDeviceLocale();
       const { posts: newPosts } = await utils.feed.list.fetch({ locale });
       setPosts((previous) => [...previous, ...newPosts]);
+    } catch (error) {
+      console.error("useFeed: failed to fetch feed page", error);
     } finally {
       isFetchingRef.current = false;
     }
   }, [utils]);
 
   useEffect(() => {
-    fetchPage().finally(() => setIsLoading(false));
+    const run = async () => {
+      try {
+        await fetchPage();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    run();
     /**
      * Runs once on mount only — `fetchPage` is stable in practice (depends
      * only on the tRPC utils object), and re-running this on every render

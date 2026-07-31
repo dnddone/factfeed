@@ -71,7 +71,7 @@ consumes nothing yet. Establishes the stack so later phases only add features.
 
 ## Phase 1 — Feed read + FactCard + loading/empty states (guest)
 
-**Status:** Not Started
+**Status:** Done
 
 Real facts on screen for a guest. Single card (no deck/gestures yet); a
 temporary control advances to the next fact so the data path is exercisable.
