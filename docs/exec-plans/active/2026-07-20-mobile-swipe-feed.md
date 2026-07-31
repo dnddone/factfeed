@@ -29,7 +29,7 @@ local `apps/api` (`pnpm --filter @factfeed/api dev`).
 
 ## Phase 0 — Scaffold `apps/mobile` + providers + monorepo wiring
 
-**Status:** Not Started
+**Status:** Done
 
 A running Expo app with all shared providers mounted and a placeholder screen —
 consumes nothing yet. Establishes the stack so later phases only add features.
