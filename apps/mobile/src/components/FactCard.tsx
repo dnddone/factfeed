@@ -47,14 +47,14 @@ const FactCardBase: React.FC<Props> = ({ post }) => {
         style={{ position: "absolute", inset: 0 }}
       />
       <View className="flex-1 justify-end px-6 pb-32">
-        <Text className="mb-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[#F7F1E7] opacity-[0.78]">
+        <Text className="mb-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-cream opacity-[0.78]">
           {t("Did you know")}
         </Text>
-        <Text className="text-[29px] font-semibold leading-[1.22] tracking-[-0.022em] text-[#F7F1E7]">
+        <Text className="text-[29px] font-semibold leading-[1.22] tracking-[-0.022em] text-cream">
           {post.content}
         </Text>
         <View className="mt-4.5 flex-row items-center gap-3.5">
-          <Text className="font-mono text-[11px] uppercase text-[#F7F1E7] opacity-70">
+          <Text className="font-mono text-[11px] uppercase text-cream opacity-70">
             {post.locale}
           </Text>
         </View>

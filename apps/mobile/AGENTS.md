@@ -163,6 +163,22 @@ const Button: React.FC<Props> = ({ variant, className, ...props }) => (
 );
 ```
 
+For conditional/merged classNames outside a `tv()` variant (e.g. a one-off state
+toggle), use `cn` from `@/utils/tailwind` — a thin re-export of
+`tailwind-variants`'s own `cn`, which resolves conflicting Tailwind classes
+(`tailwind-merge` under the hood) instead of just concatenating strings. Don't
+add `clsx` or `tailwind-merge` as separate dependencies — `tailwind-variants`
+already ships both:
+
+```tsx
+className={cn("rounded-lg bg-cream px-4 py-3", canSend ? "opacity-100" : "opacity-40")}
+```
+
+Prefer a ternary for a single either/or condition; switch to the object form
+(`cn({ "opacity-100": canSend, "border-red-500": hasError })`) once a second
+independent condition lands on the same className — a chain of ternaries gets
+unreadable fast.
+
 ## State & data
 
 - **State**: React Query v5 for server state (`["resource", id]` query

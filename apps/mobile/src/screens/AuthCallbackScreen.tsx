@@ -18,7 +18,7 @@ export const AuthCallbackScreen: React.FC = () => {
       className="flex-1 items-center justify-center"
       style={{ backgroundColor: APP_BACKGROUND_COLOR }}
     >
-      <Text className="font-mono text-xs uppercase tracking-widest text-[#F7F1E7] opacity-60">
+      <Text className="font-mono text-xs uppercase tracking-widest text-cream opacity-60">
         {t("Signing in")}
       </Text>
     </View>

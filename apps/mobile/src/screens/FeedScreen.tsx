@@ -26,6 +26,37 @@ export const FeedScreen: React.FC = () => {
     enabled: __DEV__ && status === "authed",
   });
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View className="flex-1 items-center justify-center">
+          <Text className="font-mono text-xs uppercase tracking-widest text-cream opacity-60">
+            {t("Loading")}
+          </Text>
+        </View>
+      );
+    }
+
+    if (isEmpty || !currentPost) {
+      return (
+        <View className="flex-1 items-center justify-center gap-4 px-8">
+          <Text className="text-xl font-semibold tracking-tight text-cream">
+            {t("You're all caught up")}
+          </Text>
+          <Text className="text-center text-sm text-cream opacity-60">
+            {t("New facts are brewing. Check back in a bit.")}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <Pressable className="flex-1" onPress={next}>
+        <FactCard post={currentPost} />
+      </Pressable>
+    );
+  };
+
   return (
     <View className="flex-1" style={{ backgroundColor: APP_BACKGROUND_COLOR }}>
       {status === "guest" && (
@@ -34,7 +65,7 @@ export const FeedScreen: React.FC = () => {
           className="absolute right-6 z-10"
           style={{ top: insets.top + 12 }}
         >
-          <Text className="font-mono text-xs uppercase tracking-widest text-[#F7F1E7] opacity-70">
+          <Text className="font-mono text-xs uppercase tracking-widest text-cream opacity-70">
             {t("Sign in")}
           </Text>
         </Pressable>
@@ -44,31 +75,12 @@ export const FeedScreen: React.FC = () => {
           className="absolute right-6 z-10"
           style={{ top: insets.top + 12 }}
         >
-          <Text className="font-mono text-[10px] text-[#F7F1E7] opacity-50">
+          <Text className="font-mono text-[10px] text-cream opacity-50">
             uid: {whoami.data.userId}
           </Text>
         </View>
       )}
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <Text className="font-mono text-xs uppercase tracking-widest text-[#F7F1E7] opacity-60">
-            {t("Loading")}
-          </Text>
-        </View>
-      ) : isEmpty || !currentPost ? (
-        <View className="flex-1 items-center justify-center gap-4 px-8">
-          <Text className="text-xl font-semibold tracking-tight text-[#F7F1E7]">
-            {t("You're all caught up")}
-          </Text>
-          <Text className="text-center text-sm text-[#F7F1E7] opacity-60">
-            {t("New facts are brewing. Check back in a bit.")}
-          </Text>
-        </View>
-      ) : (
-        <Pressable className="flex-1" onPress={next}>
-          <FactCard post={currentPost} />
-        </Pressable>
-      )}
+      {renderContent()}
     </View>
   );
 };
