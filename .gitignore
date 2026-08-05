@@ -23,6 +23,7 @@ pnpm-debug.log*
 # os / editor
 .DS_Store
 .idea/
+.history
 .vscode/*
 .obsidian
 !.vscode/extensions.json
