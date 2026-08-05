@@ -18,10 +18,10 @@ specific to `apps/mobile`.
 ```
 app/                 # Expo Router routes (file-based, project root, un-aliased)
 src/                  # everything else — aliased as @/*
+  screens/              # route-bound screen components, one per app/ route
   components/
     shared/             # generic primitives, zero domain knowledge: Button, Card
     <top-level>.tsx     # cross-screen, domain-specific: SwipeDeck, FactCard
-    <ScreenName>/        # single-screen components — created only once one exists
   hooks/                # custom hooks
   providers/            # React context providers
   clients/              # third-party client instantiation (API client, analytics)
@@ -35,9 +35,35 @@ src/                  # everything else — aliased as @/*
 lives under `src/`, imported via the `@/*` alias — e.g. `@/hooks/useFeed`, not
 a relative `../../hooks/useFeed`.
 
+## Screens
+
+`src/screens/` holds one component per `app/` route — the route-bound
+container that owns the screen's layout and wires up its hooks. Flat files by
+default (`FeedScreen.tsx`), same nest-only-if-it-has-siblings rule as
+components (see "File organization" below).
+
+Route files under `app/` can't be renamed to match the screen component
+(Expo Router derives the route path from the filename), so a route file is
+always a thin re-export: `export { FeedScreen as default } from
+"@/screens/FeedScreen";` (named export on the screen file, same convention
+as other components — re-exported as `default` only because Expo Router
+requires the route file itself to have one) — no business logic in `app/`
+itself, same rule as the web app's page-level views.
+
+- Typed routes (`href="/new-screen"`) only type-check once
+  `.expo/types/router.d.ts` has been regenerated for the new file — that
+  happens while `expo start` (the dev server) is running, not on a cold
+  `tsc`. After adding a route file, briefly run the dev server once (or just
+  `pnpm --filter @factfeed/mobile start` and let Metro boot) before trusting
+  a `typecheck` failure that only mentions the new path.
+- Screens sit above components — a screen can import from `components/`, but
+  a component must never import from `screens/`. Enforced by import-sort
+  ordering (`@/components` before `@/screens` in `eslint.config.mjs`), not a
+  hard lint failure — keep it that way when adding imports.
+
 ## Components
 
-Three tiers, by reach — not by whether a component is a "primitive" vs.
+Two tiers, by reach — not by whether a component is a "primitive" vs.
 "composed":
 
 - **`components/shared/`**: generic primitives with zero domain knowledge —
@@ -49,13 +75,6 @@ Three tiers, by reach — not by whether a component is a "primitive" vs.
   screen. Use the compound component pattern (shared context + subcomponents)
   for anything with multiple coordinated pieces, instead of one component
   with many render props or booleans.
-- **`components/<ScreenName>/`**: used by exactly one screen. Don't create
-  this tier speculatively — start the component inline in the screen file
-  under `app/`, and only extract it into `components/<ScreenName>/` once it
-  exists and is clearly single-screen-only.
-- **Routing**: Expo Router. Route files under `app/` only compose
-  hooks/components — no business logic, same rule as the web app's
-  page-level views.
 - **File organization** (new files, not a retrofit of existing ones):
   - `index.ts` is for imports/exports only — never define a component inside it.
   - One component per file by default.
@@ -144,6 +163,22 @@ const Button: React.FC<Props> = ({ variant, className, ...props }) => (
 );
 ```
 
+For conditional/merged classNames outside a `tv()` variant (e.g. a one-off state
+toggle), use `cn` from `@/utils/tailwind` — a thin re-export of
+`tailwind-variants`'s own `cn`, which resolves conflicting Tailwind classes
+(`tailwind-merge` under the hood) instead of just concatenating strings. Don't
+add `clsx` or `tailwind-merge` as separate dependencies — `tailwind-variants`
+already ships both:
+
+```tsx
+className={cn("rounded-lg bg-cream px-4 py-3", canSend ? "opacity-100" : "opacity-40")}
+```
+
+Prefer a ternary for a single either/or condition; switch to the object form
+(`cn({ "opacity-100": canSend, "border-red-500": hasError })`) once a second
+independent condition lands on the same className — a chain of ternaries gets
+unreadable fast.
+
 ## State & data
 
 - **State**: React Query v5 for server state (`["resource", id]` query
@@ -162,6 +197,19 @@ const Button: React.FC<Props> = ({ variant, className, ...props }) => (
   import from `packages/contract`. Local component prop types stay local.
 - Transform snake_case external data (e.g. Supabase's `user_metadata`,
   `created_at`) to camelCase at the boundary — same rule as `apps/api`.
+- `useEffect` callbacks can't be `async` themselves — when the effect body
+  needs `await`, define an inner `async` function named `run` and call it
+  immediately:
+
+  ```ts
+  useEffect(() => {
+    const run = async () => {
+      await doSomething();
+    };
+
+    run();
+  }, []);
+  ```
 
 ## Performance
 
@@ -218,6 +266,13 @@ t(DAY_KEYS[dayIndex]);
 
 Never remove or rewrite these comments — they are load-bearing for the
 scanner.
+
+## Running on a physical device (Expo Go)
+
+See `docs/runbooks/mobile-physical-device-networking.md` — plain LAN mode
+(the default `pnpm --filter @factfeed/mobile start`) silently breaks
+Supabase magic-link sign-in (a GoTrue bug rejecting IP-hosted redirect
+URLs); the runbook covers the two working alternatives and why.
 
 ## Error/toast UI
 

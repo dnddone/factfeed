@@ -57,6 +57,10 @@ export default [
              */
             ["^@/components"],
             /**
+             * Internal: screens (route-bound containers, sit above components)
+             */
+            ["^@/screens"],
+            /**
              * Internal: any remaining @/ paths
              */
             ["^@/"],
