@@ -19,10 +19,15 @@ local `apps/api` (`pnpm --filter @factfeed/api dev`).
 - Mobile reuses the **same Supabase project** as the backend. `EXPO_PUBLIC_SUPABASE_URL`
   / `EXPO_PUBLIC_SUPABASE_ANON_KEY` = the backend's `SUPABASE_URL` / `SUPABASE_ANON_KEY`
   (anon key is the public client key).
-- Deep-link scheme for magic-link return: **`factfeed://auth-callback`** — this
-  must match the Redirect URL added in the Supabase dashboard (Authentication →
-  URL Configuration). Confirm the exact string entered there matches before
-  Phase 2.
+- Deep-link path for magic-link return: **`auth-callback`**, resolved via
+  `Linking.createURL` (`@/utils/auth-callback`) rather than a hardcoded
+  `factfeed://` URL — custom schemes don't resolve inside Expo Go. This
+  yields `factfeed://auth-callback` in a standalone/dev-client build, or an
+  `exp://...` URL under Expo Go. Add both `factfeed://auth-callback` and
+  `exp://**` as Redirect URLs in the Supabase dashboard (Authentication →
+  URL Configuration) before Phase 2 — and see
+  `docs/runbooks/mobile-physical-device-networking.md` for why plain LAN
+  mode breaks this flow and which dev-server mode to use instead.
 - API base URL points at **local `apps/api`** in dev.
 
 ---

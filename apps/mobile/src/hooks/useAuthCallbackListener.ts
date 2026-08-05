@@ -2,12 +2,14 @@ import { useEffect } from "react";
 import * as Linking from "expo-linking";
 import { router } from "expo-router";
 
-import { AUTH_CALLBACK_URL } from "@/constants/auth.constants";
 import { supabase } from "@/clients/supabase";
-import { parseAuthCallbackTokens } from "@/utils/auth-callback";
+import {
+  getAuthCallbackUrl,
+  parseAuthCallbackTokens,
+} from "@/utils/auth-callback";
 
 const completeSessionFromUrl = async (url: string) => {
-  if (!url.startsWith(AUTH_CALLBACK_URL)) {
+  if (!url.startsWith(getAuthCallbackUrl())) {
     return;
   }
 
@@ -35,7 +37,7 @@ const completeSessionFromUrl = async (url: string) => {
 };
 
 /**
- * Global listener for the magic-link redirect (`factfeed://auth-callback`).
+ * Global listener for the magic-link redirect (see `getAuthCallbackUrl`).
  * Mounted once at the app root so it catches the link whether the app was
  * cold-started by it (`getInitialURL`) or already running in the background
  * (the `url` event).

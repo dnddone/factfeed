@@ -267,6 +267,13 @@ t(DAY_KEYS[dayIndex]);
 Never remove or rewrite these comments — they are load-bearing for the
 scanner.
 
+## Running on a physical device (Expo Go)
+
+See `docs/runbooks/mobile-physical-device-networking.md` — plain LAN mode
+(the default `pnpm --filter @factfeed/mobile start`) silently breaks
+Supabase magic-link sign-in (a GoTrue bug rejecting IP-hosted redirect
+URLs); the runbook covers the two working alternatives and why.
+
 ## Error/toast UI
 
 **Explicitly deferred** — no toast library chosen yet. Until then, failures

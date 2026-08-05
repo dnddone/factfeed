@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
-import { AUTH_CALLBACK_URL } from "@/constants/auth.constants";
 import { supabase } from "@/clients/supabase";
+import { getAuthCallbackUrl } from "@/utils/auth-callback";
 
 type MagicLinkStatus = "idle" | "sending" | "sent";
 
@@ -21,7 +21,7 @@ export const useMagicLinkSignIn = (): UseMagicLinkSignInResult => {
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: AUTH_CALLBACK_URL },
+      options: { emailRedirectTo: getAuthCallbackUrl() },
     });
 
     if (error) {

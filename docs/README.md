@@ -13,6 +13,7 @@ conventions apply.
 | `inbox/`         | Untriaged ideas and expanded TODOs awaiting triage.            |
 | `research/`      | Time-bound investigations, evaluations, spikes.                |
 | `decisions/`     | Architectural Decision Records (ADRs).                         |
+| `runbooks/`      | Operational procedures — one file per procedure.               |
 
 ## Flow
 
@@ -23,5 +24,7 @@ inbox → (research) → product-spec → design-doc (Approved) → exec-plan �
 ```
 
 Not every change walks the whole chain. Direct, already-specified requests may
-start at a design doc or an ADR. See each folder's README for its contract, and
-the root `CLAUDE.md` for the full workflow and file formats.
+start at a design doc or an ADR. `runbooks/` sits outside this pipeline
+entirely — procedures get added/updated whenever one is discovered or
+changes, not gated on a design doc. See each folder's README for its
+contract, and the root `CLAUDE.md` for the full workflow and file formats.
