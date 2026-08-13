@@ -1,3 +1,5 @@
+import { Easing } from "react-native-reanimated";
+
 /**
  * Fraction of screen width/height a drag must cross to commit (fly off /
  * page) instead of springing back.
@@ -47,9 +49,24 @@ export const SWIPE_SPRING_CONFIG = {
 };
 
 /**
- * Duration of the fly-off animation once a swipe commits.
+ * Duration of the fly-off animation once a horizontal Keep/Pass swipe
+ * commits.
  */
 export const FLY_OFF_DURATION_MS = 240;
+
+/**
+ * Duration of the fly-off animation once a vertical next/previous swipe
+ * commits — slower than the horizontal one for a more deliberate page-turn
+ * feel.
+ */
+export const VERTICAL_FLY_OFF_DURATION_MS = 360;
+
+/**
+ * Easing for the vertical fly-off — cubic in/out instead of `withTiming`'s
+ * default quad in/out, for a more pronounced ease at both ends (slow
+ * start, fast middle, gentle stop instead of an abrupt one).
+ */
+export const VERTICAL_FLY_OFF_EASING = Easing.inOut(Easing.cubic);
 
 /**
  * Corner radius the current card animates toward as a horizontal drag

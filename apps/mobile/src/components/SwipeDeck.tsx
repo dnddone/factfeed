@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useLayoutEffect } from "react";
 import { Text, useWindowDimensions, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -31,6 +31,8 @@ import {
   STAMP_ICON_SIZE,
   SWIPE_SPRING_CONFIG,
   VERTICAL_COMMIT_THRESHOLD,
+  VERTICAL_FLY_OFF_DURATION_MS,
+  VERTICAL_FLY_OFF_EASING,
 } from "@/constants/swipe-deck.constants";
 import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
 import { trpc } from "@/clients/trpc";
@@ -90,11 +92,6 @@ export const SwipeDeck: React.FC = () => {
     router.push("/auth");
   }, []);
 
-  const resetPosition = useCallback(() => {
-    translateX.value = 0;
-    translateY.value = 0;
-  }, [translateX, translateY]);
-
   const commitKeepPass = useCallback(
     (direction: SwipeDirection) => {
       if (!current) {
@@ -103,9 +100,8 @@ export const SwipeDeck: React.FC = () => {
       recordVerdict(current.post.id, direction);
       setVerdict(direction);
       advance();
-      resetPosition();
     },
-    [current, recordVerdict, setVerdict, advance, resetPosition],
+    [current, recordVerdict, setVerdict, advance],
   );
 
   const commitNext = useCallback(() => {
@@ -117,19 +113,29 @@ export const SwipeDeck: React.FC = () => {
       setVerdict("SKIP");
     }
     advance();
-    resetPosition();
-  }, [current, status, recordVerdict, setVerdict, advance, resetPosition]);
+  }, [current, status, recordVerdict, setVerdict, advance]);
 
   const commitPrevious = useCallback(() => {
     retreat();
-    resetPosition();
-  }, [retreat, resetPosition]);
+  }, [retreat]);
 
   const markCoachSeen = useCallback(() => {
     if (!hasSeenCoach) {
       markSeen();
     }
   }, [hasSeenCoach, markSeen]);
+
+  /**
+   * Zeroing translateX/Y must wait until the new current/previous/next
+   * cards have already replaced the old ones in the tree — doing it inside
+   * the commit callback (before this re-render lands) briefly snaps the
+   * still-mounted outgoing card back to its resting transform, flashing it
+   * back into view for a frame.
+   */
+  useLayoutEffect(() => {
+    translateX.value = 0;
+    translateY.value = 0;
+  }, [current?.post.id, translateX, translateY]);
 
   const pan = Gesture.Pan()
     .onBegin(() => {
@@ -229,7 +235,10 @@ export const SwipeDeck: React.FC = () => {
         }
         translateY.value = withTiming(
           -height * 1.1,
-          { duration: FLY_OFF_DURATION_MS },
+          {
+            duration: VERTICAL_FLY_OFF_DURATION_MS,
+            easing: VERTICAL_FLY_OFF_EASING,
+          },
           (finished) => {
             if (finished) {
               runOnJS(commitNext)();
@@ -246,7 +255,10 @@ export const SwipeDeck: React.FC = () => {
       }
       translateY.value = withTiming(
         height * 1.1,
-        { duration: FLY_OFF_DURATION_MS },
+        {
+          duration: VERTICAL_FLY_OFF_DURATION_MS,
+          easing: VERTICAL_FLY_OFF_EASING,
+        },
         (finished) => {
           if (finished) {
             runOnJS(commitPrevious)();
@@ -285,21 +297,53 @@ export const SwipeDeck: React.FC = () => {
     };
   });
 
-  const previousCardStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value - height }],
-  }));
+  /**
+   * The current card's fly-off animates `translateY` past `±height` (a 10%
+   * overshoot, see `FLY_OFF_DURATION_MS` usage below) so it fully clears the
+   * viewport before unmounting. `previous`/`next` derive their position
+   * straight off that same shared value, so without clamping, that
+   * overshoot bleeds into them too — momentarily pushing them past their
+   * resting alignment and leaving a gap at the opposite screen edge right
+   * as the gesture commits.
+   */
+  const previousCardStyle = useAnimatedStyle(() => {
+    const clampedTranslateY = interpolate(
+      translateY.value,
+      [0, height],
+      [0, height],
+      Extrapolation.CLAMP,
+    );
+    return { transform: [{ translateY: clampedTranslateY - height }] };
+  });
 
   const nextCardStyle = useAnimatedStyle(() => {
-    const isVerticalDrag =
-      translateY.value < 0 &&
+    const isDominantVertical =
       Math.abs(translateY.value) >= Math.abs(translateX.value);
 
-    if (isVerticalDrag) {
+    if (isDominantVertical && translateY.value < 0) {
+      const clampedTranslateY = interpolate(
+        translateY.value,
+        [-height, 0],
+        [-height, 0],
+        Extrapolation.CLAMP,
+      );
       return {
         transform: [
-          { translateY: height + translateY.value },
+          { translateY: height + clampedTranslateY },
           { scale: PEEK_SCALE_SETTLED },
         ],
+      };
+    }
+
+    /**
+     * A downward drag reveals `previous`, not `next` — keep `next` parked
+     * off-screen below so it can't cover `previous` (both are absolute
+     * inset-0, `next` stacked on top in z-order) while `current` slides
+     * away.
+     */
+    if (isDominantVertical && translateY.value > 0) {
+      return {
+        transform: [{ translateY: height }, { scale: PEEK_SCALE_SETTLED }],
       };
     }
 
