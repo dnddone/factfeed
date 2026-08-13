@@ -109,7 +109,7 @@ temporary control advances to the next fact so the data path is exercisable.
 
 ## Phase 2 — Magic-link auth (session + modal + token attach)
 
-**Status:** Not Started
+**Status:** Done
 
 Sign-in foundation. Nothing is gated yet, but sessions work and the tRPC client
 sends the token — the prerequisite for verdicts in Phase 3.
@@ -155,7 +155,7 @@ waits for Phase 5 (needs backend Phase 4).
 - `src/hooks/useSwipeHistory.ts`: local previous/current/next buffer over the
   loaded feed; cursor moves both directions. Retains swiped cards for the
   session so "previous" is instant (no refetch).
-- `src/components/module/SwipeDeck.tsx`: three mounted cards, Reanimated shared
+- `src/components/SwipeDeck.tsx`: three mounted cards, Reanimated shared
   values on the UI thread (ADR 0008). Gesture (gesture-handler):
   - **up** → next; if authed and the card has no prior verdict, fire
     `swipe.record({ direction: "SKIP" })`; guests just page. Never gates auth.
@@ -167,7 +167,7 @@ waits for Phase 5 (needs backend Phase 4).
   - re-Skip on an already-skipped card is a client no-op (history knows the
     verdict); revisiting a _judged_ card shows its verdict but re-swiping is a
     no-op for now (current backend is first-write-wins — safe).
-- `src/components/module/GestureCoach.tsx`: first-run wiggle (left ghosted Pass,
+- `src/components/GestureCoach.tsx`: first-run wiggle (left ghosted Pass,
   right ghosted Keep), dismiss on first touch, persist `hasSeenCoach`
   (AsyncStorage). Respect `prefers-reduced-motion` (stamps fade, card still).
 - Replace Phase 1's temporary advance control with the deck.

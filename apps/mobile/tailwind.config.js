@@ -6,6 +6,8 @@ module.exports = {
     extend: {
       colors: {
         cream: "#F7F1E7",
+        keep: "#E9A23B",
+        pass: "#8FA0B4",
       },
     },
   },
