@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import { Text, useWindowDimensions, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -40,6 +40,7 @@ import { useHasSeenCoach } from "@/hooks/useHasSeenCoach";
 import { useSwipeHistory } from "@/hooks/useSwipeHistory";
 import { useSessionContext } from "@/providers/session-provider";
 
+import { AuthToast } from "@/components/AuthToast";
 import { FactCard } from "@/components/FactCard";
 import { GestureCoach } from "@/components/GestureCoach";
 
@@ -73,6 +74,7 @@ export const SwipeDeck: React.FC = () => {
   const passStampOverrideOpacity = useSharedValue(0);
   const keepStampOverrideOpacity = useSharedValue(0);
   const lockedAxis = useSharedValue<"none" | "horizontal" | "vertical">("none");
+  const [showAuthToast, setShowAuthToast] = useState(false);
 
   const recordVerdict = useCallback(
     (postId: string, direction: SwipeDirection) => {
@@ -89,7 +91,7 @@ export const SwipeDeck: React.FC = () => {
   );
 
   const presentAuthGate = useCallback(() => {
-    router.push("/auth");
+    setShowAuthToast(true);
   }, []);
 
   const commitKeepPass = useCallback(
@@ -485,6 +487,10 @@ export const SwipeDeck: React.FC = () => {
         </Animated.View>
       </GestureDetector>
       {renderCoach()}
+      <AuthToast
+        visible={showAuthToast && status !== "authed"}
+        onPress={() => router.push("/auth")}
+      />
     </View>
   );
 };
