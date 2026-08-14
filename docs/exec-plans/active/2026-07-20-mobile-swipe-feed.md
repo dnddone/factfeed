@@ -143,7 +143,7 @@ sends the token — the prerequisite for verdicts in Phase 3.
 
 ## Phase 3 — Three-card deck + gestures + coach + verdict recording
 
-**Status:** Not Started
+**Status:** Done
 
 The heart of the app. Immersive three-card bidirectional deck built **from the
 start** (previous / current / next) to avoid a 2→3 retrofit. Browse + judge.
@@ -178,8 +178,9 @@ waits for Phase 5 (needs backend Phase 4).
 
 - Swipe up pages forward (Reels feel); swipe down re-reads the previous fact;
   horizontal shows the peek and Keep/Pass stamps.
-- Guest horizontal swipe opens the auth modal and snaps back; backing out leaves
-  the triggering card on top.
+- Guest horizontal swipe snaps back and surfaces a non-blocking sign-in nudge
+  (`AuthToast`); tapping it opens the auth modal, dismissing leaves the
+  triggering card on top.
 - Authed: Keep/Pass records the verdict (visible in DB / `/debug`); swipe-up
   records `SKIP` for unseen cards; skipped/judged cards don't reappear.
 - First-run coach plays once, then never again.

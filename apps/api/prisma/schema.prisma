@@ -56,6 +56,7 @@ model Swipe {
   postId    String
   direction SwipeDirection
   createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   user User @relation(fields: [userId], references: [id])
   post Post @relation(fields: [postId], references: [id])

@@ -1,6 +1,10 @@
-import { Prisma } from "@prisma/client";
 import { swipeRecordInput } from "@factfeed/contract";
-import { nextAffinity, nextDecayedCounters } from "@/ranking";
+import {
+  nextAffinity,
+  nextDecayedCounters,
+  reverseAffinity,
+  reverseDecayedCounters,
+} from "@/ranking";
 import { protectedProcedure, router } from "@/server/trpc";
 
 export const swipeRouter = router({
@@ -8,35 +12,24 @@ export const swipeRouter = router({
     .input(swipeRecordInput)
     .mutation(async ({ ctx, input }): Promise<{ ok: true }> => {
       await ctx.db.$transaction(async (tx) => {
-        try {
-          await tx.swipe.create({
-            data: {
-              userId: ctx.userId,
-              postId: input.postId,
-              direction: input.direction,
-            },
-          });
-        } catch (error) {
-          if (
-            error instanceof Prisma.PrismaClientKnownRequestError &&
-            error.code === "P2002"
-          ) {
-            return;
-          }
+        const existing = await tx.swipe.findUnique({
+          where: {
+            userId_postId: { userId: ctx.userId, postId: input.postId },
+          },
+        });
 
-          throw error;
+        /**
+         * ADR 0012: re-recording the same direction (e.g. re-Skip on
+         * back-nav) is always a no-op — it carries no counter/affinity
+         * change and must not bump `Swipe.updatedAt`.
+         */
+        if (existing && existing.direction === input.direction) {
+          return;
         }
 
         const now = new Date();
         const post = await tx.post.findUniqueOrThrow({
           where: { id: input.postId },
-        });
-
-        const postCounters = nextDecayedCounters({
-          counters: post,
-          scoreUpdatedAt: post.scoreUpdatedAt,
-          now,
-          direction: input.direction,
         });
 
         const [affinity, categoryStats] = await Promise.all([
@@ -48,21 +41,66 @@ export const swipeRouter = router({
           tx.categoryStats.findUnique({ where: { category: post.category } }),
         ]);
 
-        const nextAffinityValue = nextAffinity({
-          affinity: affinity?.affinity ?? 0,
-          updatedAt: affinity?.updatedAt ?? now,
-          now,
-          direction: input.direction,
-        });
+        const postCounters = existing
+          ? reverseDecayedCounters({
+              counters: post,
+              scoreUpdatedAt: post.scoreUpdatedAt,
+              now,
+              oldDirection: existing.direction,
+              oldEffectiveAt: existing.updatedAt,
+              newDirection: input.direction,
+            })
+          : nextDecayedCounters({
+              counters: post,
+              scoreUpdatedAt: post.scoreUpdatedAt,
+              now,
+              direction: input.direction,
+            });
 
-        const nextCategoryCounters = nextDecayedCounters({
-          counters: categoryStats ?? { likeCount: 0, dislikeCount: 0 },
-          scoreUpdatedAt: categoryStats?.scoreUpdatedAt ?? now,
-          now,
-          direction: input.direction,
-        });
+        const nextAffinityValue = existing
+          ? reverseAffinity({
+              affinity: affinity?.affinity ?? 0,
+              updatedAt: affinity?.updatedAt ?? now,
+              now,
+              oldDirection: existing.direction,
+              oldEffectiveAt: existing.updatedAt,
+              newDirection: input.direction,
+            })
+          : nextAffinity({
+              affinity: affinity?.affinity ?? 0,
+              updatedAt: affinity?.updatedAt ?? now,
+              now,
+              direction: input.direction,
+            });
+
+        const nextCategoryCounters = existing
+          ? reverseDecayedCounters({
+              counters: categoryStats ?? { likeCount: 0, dislikeCount: 0 },
+              scoreUpdatedAt: categoryStats?.scoreUpdatedAt ?? now,
+              now,
+              oldDirection: existing.direction,
+              oldEffectiveAt: existing.updatedAt,
+              newDirection: input.direction,
+            })
+          : nextDecayedCounters({
+              counters: categoryStats ?? { likeCount: 0, dislikeCount: 0 },
+              scoreUpdatedAt: categoryStats?.scoreUpdatedAt ?? now,
+              now,
+              direction: input.direction,
+            });
 
         await Promise.all([
+          tx.swipe.upsert({
+            where: {
+              userId_postId: { userId: ctx.userId, postId: input.postId },
+            },
+            create: {
+              userId: ctx.userId,
+              postId: input.postId,
+              direction: input.direction,
+            },
+            update: { direction: input.direction },
+          }),
           tx.post.update({
             where: { id: input.postId },
             data: {
@@ -70,7 +108,11 @@ export const swipeRouter = router({
               dislikeCount: postCounters.dislikeCount,
               score: postCounters.score,
               scoreUpdatedAt: now,
-              seenCount: { increment: 1 },
+              /**
+               * An edit re-judges a post the user has already seen — only
+               * the first-ever verdict counts toward `seenCount`.
+               */
+              ...(existing ? {} : { seenCount: { increment: 1 } }),
             },
           }),
           tx.userCategoryAffinity.upsert({

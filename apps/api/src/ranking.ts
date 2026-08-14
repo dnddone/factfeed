@@ -28,6 +28,19 @@ export const laplaceScore = (likeCount: number, dislikeCount: number): number =>
 export type NextDecayedCounters = Counters & { score: number };
 
 /**
+ * Per-direction weights shared by the forward-decay update below and its
+ * ADR 0012 reversal counterpart, so the two never drift apart.
+ */
+const likeDelta = (direction: SwipeDirection): number =>
+  direction === "LIKE" ? 1 : 0;
+
+const dislikeDelta = (direction: SwipeDirection): number =>
+  direction === "DISLIKE" ? 1 : 0;
+
+const affinityDelta = (direction: SwipeDirection): number =>
+  direction === "LIKE" ? 1 : direction === "DISLIKE" ? -1 : 0;
+
+/**
  * Shared by Post and CategoryStats — ADR 0010 decays and scores both identically.
  */
 export const nextDecayedCounters = ({
@@ -42,9 +55,8 @@ export const nextDecayedCounters = ({
   direction: SwipeDirection;
 }): NextDecayedCounters => {
   const decay = decayFactor(hoursBetween(scoreUpdatedAt, now));
-  const likeCount = counters.likeCount * decay + (direction === "LIKE" ? 1 : 0);
-  const dislikeCount =
-    counters.dislikeCount * decay + (direction === "DISLIKE" ? 1 : 0);
+  const likeCount = counters.likeCount * decay + likeDelta(direction);
+  const dislikeCount = counters.dislikeCount * decay + dislikeDelta(direction);
 
   return {
     likeCount,
@@ -65,9 +77,74 @@ export const nextAffinity = ({
   direction: SwipeDirection;
 }): number => {
   const decay = decayFactor(hoursBetween(updatedAt, now));
-  const delta = direction === "LIKE" ? 1 : direction === "DISLIKE" ? -1 : 0;
 
-  return affinity * decay + delta;
+  return affinity * decay + affinityDelta(direction);
+};
+
+/**
+ * ADR 0012: revise a counter pair when a swipe's direction is edited.
+ * Exponential decay composes multiplicatively, so the old direction's
+ * current contribution can be isolated and subtracted exactly from just its
+ * own effective timestamp (`oldEffectiveAt`) — no time-series storage needed.
+ * Produces the same counters as if `newDirection` had been recorded from the
+ * start.
+ */
+export const reverseDecayedCounters = ({
+  counters,
+  scoreUpdatedAt,
+  now,
+  oldDirection,
+  oldEffectiveAt,
+  newDirection,
+}: {
+  counters: Counters;
+  scoreUpdatedAt: Date;
+  now: Date;
+  oldDirection: SwipeDirection;
+  oldEffectiveAt: Date;
+  newDirection: SwipeDirection;
+}): NextDecayedCounters => {
+  const decay = decayFactor(hoursBetween(scoreUpdatedAt, now));
+  const reverseDecay = decayFactor(hoursBetween(oldEffectiveAt, now));
+  const likeCount =
+    counters.likeCount * decay -
+    likeDelta(oldDirection) * reverseDecay +
+    likeDelta(newDirection);
+  const dislikeCount =
+    counters.dislikeCount * decay -
+    dislikeDelta(oldDirection) * reverseDecay +
+    dislikeDelta(newDirection);
+
+  return {
+    likeCount,
+    dislikeCount,
+    score: laplaceScore(likeCount, dislikeCount),
+  };
+};
+
+export const reverseAffinity = ({
+  affinity,
+  updatedAt,
+  now,
+  oldDirection,
+  oldEffectiveAt,
+  newDirection,
+}: {
+  affinity: number;
+  updatedAt: Date;
+  now: Date;
+  oldDirection: SwipeDirection;
+  oldEffectiveAt: Date;
+  newDirection: SwipeDirection;
+}): number => {
+  const decay = decayFactor(hoursBetween(updatedAt, now));
+  const reverseDecay = decayFactor(hoursBetween(oldEffectiveAt, now));
+
+  return (
+    affinity * decay -
+    affinityDelta(oldDirection) * reverseDecay +
+    affinityDelta(newDirection)
+  );
 };
 
 /**
