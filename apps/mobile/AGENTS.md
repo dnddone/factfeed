@@ -276,6 +276,14 @@ URLs); the runbook covers the two working alternatives and why.
 
 ## Error/toast UI
 
-**Explicitly deferred** — no toast library chosen yet. Until then, failures
-follow the design doc's default: catch, log, no user-facing surface. Revisit
-once a real need for user-facing feedback shows up.
+A general toast library/system is still **explicitly deferred** — failures
+still follow the design doc's default: catch, log, no user-facing surface.
+
+`src/components/AuthToast.tsx` is a one-off precedent, not that system: a
+small non-blocking banner scoped to the guest swipe-auth nudge (replaces
+auto-navigating to the `/auth` modal on an unauthenticated Keep/Pass swipe —
+ADR 0009's gate is unchanged, only the prompt's presentation). Follow its
+pattern (local component, Reanimated opacity/translate driven by a `visible`
+prop, no timer-based auto-dismiss) for another one-off nudge; only reach for
+a shared toast primitive once a second, meaningfully different use case
+shows up.
