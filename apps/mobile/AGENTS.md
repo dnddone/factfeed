@@ -137,9 +137,11 @@ export const categoryFilterOptions = [
 
 ## Providers
 
-Pattern: `src/providers/<feature>-provider.tsx` — define a `State` type
-(getters + setters), `createContext<State>()`, export the provider component
-plus a `useX()` hook that throws if called outside the provider.
+A provider is a component like any other — same PascalCase file-matches-
+export convention as `components/`/`screens/`, not a special case. Pattern:
+`src/providers/<Feature>Provider.tsx` — define a `State` type (getters +
+setters), `createContext<State>()`, export the provider component plus a
+`useX()` hook that throws if called outside the provider.
 
 ## Styling
 

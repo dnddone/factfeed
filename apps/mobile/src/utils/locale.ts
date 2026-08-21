@@ -2,7 +2,7 @@ import { getLocales } from "expo-localization";
 
 import { DEFAULT_LOCALE, type Locale, LOCALES } from "@factfeed/contract";
 
-const isSupportedLocale = (value: string): value is Locale =>
+export const isSupportedLocale = (value: string): value is Locale =>
   LOCALES.includes(value as Locale);
 
 export const getDeviceLocale = (): Locale => {

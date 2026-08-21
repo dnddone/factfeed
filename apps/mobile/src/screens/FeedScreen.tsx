@@ -1,14 +1,15 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HAS_SEEN_COACH_STORAGE_KEY } from "@/constants/storage.constants";
-import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
+import { APP_BACKGROUND_COLOR, CREAM_COLOR } from "@/constants/theme.constants";
 import { trpc } from "@/clients/trpc";
-import { useSessionContext } from "@/providers/session-provider";
+import { useSessionContext } from "@/providers/SessionProvider";
 
 import { SwipeDeck } from "@/components/SwipeDeck";
 
@@ -16,6 +17,7 @@ import { SwipeDeck } from "@/components/SwipeDeck";
  * Immersive gesture-only feed (Phase 3). The top-right "Sign in" affordance
  * and dev-only uid readout are a manual entry point alongside the swipe
  * gate — the deck's horizontal swipe is the primary auth trigger (ADR 0009).
+ * The top-left menu button pushes the Settings/About stack (Phase 6).
  */
 export const FeedScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -27,6 +29,14 @@ export const FeedScreen: React.FC = () => {
 
   return (
     <View className="flex-1" style={{ backgroundColor: APP_BACKGROUND_COLOR }}>
+      <Pressable
+        onPress={() => router.push("/settings")}
+        accessibilityLabel={t("Menu")}
+        className="absolute left-6 z-10"
+        style={{ top: insets.top + 12 }}
+      >
+        <Ionicons name="menu-outline" size={22} color={CREAM_COLOR} />
+      </Pressable>
       {status === "guest" && (
         <Pressable
           onPress={() => router.push("/auth")}
@@ -52,7 +62,7 @@ export const FeedScreen: React.FC = () => {
         <Pressable
           onPress={() => AsyncStorage.removeItem(HAS_SEEN_COACH_STORAGE_KEY)}
           className="absolute left-6 z-10"
-          style={{ top: insets.top + 12 }}
+          style={{ top: insets.top + 44 }}
         >
           <Text className="font-mono text-[10px] text-cream opacity-50">
             {t("Reset coach")}
