@@ -369,13 +369,16 @@ export const SwipeDeck: React.FC = () => {
    * fighting it — otherwise the old verdict's stamp would stay lit while a
    * new one fades in on top of it.
    */
-  const restOpacity = (targetDirection: SwipeDirection) =>
-    interpolate(
+  const restOpacity = (targetDirection: SwipeDirection) => {
+    "worklet";
+
+    return interpolate(
       Math.abs(translateX.value),
       [0, width * 0.12],
       [current?.verdict === targetDirection ? 1 : 0, 0],
       Extrapolation.CLAMP,
     );
+  };
 
   const passStampStyle = useAnimatedStyle(() => {
     const dragOpacity = interpolate(
