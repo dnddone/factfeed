@@ -362,6 +362,21 @@ export const SwipeDeck: React.FC = () => {
     };
   });
 
+  /**
+   * A revisited card's existing verdict (design doc: "shown via the stamp
+   * state") rests at full opacity until the user starts dragging in either
+   * direction, then hands off to the drag-driven opacity below instead of
+   * fighting it — otherwise the old verdict's stamp would stay lit while a
+   * new one fades in on top of it.
+   */
+  const restOpacity = (targetDirection: SwipeDirection) =>
+    interpolate(
+      Math.abs(translateX.value),
+      [0, width * 0.12],
+      [current?.verdict === targetDirection ? 1 : 0, 0],
+      Extrapolation.CLAMP,
+    );
+
   const passStampStyle = useAnimatedStyle(() => {
     const dragOpacity = interpolate(
       translateX.value,
@@ -369,7 +384,13 @@ export const SwipeDeck: React.FC = () => {
       [1, 0, 0],
       Extrapolation.CLAMP,
     );
-    return { opacity: Math.max(dragOpacity, passStampOverrideOpacity.value) };
+    return {
+      opacity: Math.max(
+        dragOpacity,
+        passStampOverrideOpacity.value,
+        restOpacity("DISLIKE"),
+      ),
+    };
   });
 
   const keepStampStyle = useAnimatedStyle(() => {
@@ -379,7 +400,13 @@ export const SwipeDeck: React.FC = () => {
       [0, 0, 1],
       Extrapolation.CLAMP,
     );
-    return { opacity: Math.max(dragOpacity, keepStampOverrideOpacity.value) };
+    return {
+      opacity: Math.max(
+        dragOpacity,
+        keepStampOverrideOpacity.value,
+        restOpacity("LIKE"),
+      ),
+    };
   });
 
   const renderCoach = () => {
