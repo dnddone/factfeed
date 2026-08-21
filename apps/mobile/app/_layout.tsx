@@ -10,7 +10,8 @@ import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
 import { i18next } from "@/clients/i18n";
 import { queryClient, trpc, trpcClient } from "@/clients/trpc";
 import { useAuthCallbackListener } from "@/hooks/useAuthCallbackListener";
-import { SessionProvider } from "@/providers/session-provider";
+import { LocaleProvider } from "@/providers/LocaleProvider";
+import { SessionProvider } from "@/providers/SessionProvider";
 
 import "../global.css";
 
@@ -31,20 +32,22 @@ const RootLayout: React.FC = () => {
         <trpc.Provider client={trpcClient} queryClient={queryClient}>
           <QueryClientProvider client={queryClient}>
             <I18nextProvider i18n={i18next}>
-              <SafeAreaProvider>
-                <StatusBar style="light" />
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: APP_BACKGROUND_COLOR },
-                  }}
-                >
-                  <Stack.Screen
-                    name="auth"
-                    options={{ presentation: "modal" }}
-                  />
-                </Stack>
-              </SafeAreaProvider>
+              <LocaleProvider>
+                <SafeAreaProvider>
+                  <StatusBar style="light" />
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: { backgroundColor: APP_BACKGROUND_COLOR },
+                    }}
+                  >
+                    <Stack.Screen
+                      name="auth"
+                      options={{ presentation: "modal" }}
+                    />
+                  </Stack>
+                </SafeAreaProvider>
+              </LocaleProvider>
             </I18nextProvider>
           </QueryClientProvider>
         </trpc.Provider>

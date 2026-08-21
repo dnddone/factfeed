@@ -5,6 +5,7 @@ import { type SessionStatus, useSession } from "@/hooks/useSession";
 type State = {
   status: SessionStatus;
   accessToken: string | null;
+  email: string | null;
 };
 
 const SessionContext = createContext<State | null>(null);
@@ -14,10 +15,10 @@ type Props = {
 };
 
 export const SessionProvider: React.FC<Props> = ({ children }) => {
-  const { status, accessToken } = useSession();
+  const { status, accessToken, email } = useSession();
 
   return (
-    <SessionContext.Provider value={{ status, accessToken }}>
+    <SessionContext.Provider value={{ status, accessToken, email }}>
       {children}
     </SessionContext.Provider>
   );

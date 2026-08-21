@@ -246,7 +246,7 @@ that the backend (Phase 4) supports it.
 
 ## Phase 6 — Nested navigation: Settings + About
 
-**Status:** Not Started
+**Status:** Done
 
 The navigation shell beyond the feed. Menu button → pushed stack. Content is
 intentionally light (shell); the route group and entry point are the point.

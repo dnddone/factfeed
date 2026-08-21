@@ -4,7 +4,7 @@ import type { SwipeDirection } from "@factfeed/contract";
 
 import type { CardHistoryEntry } from "@/types/shared";
 import { trpc } from "@/clients/trpc";
-import { getDeviceLocale } from "@/utils/locale";
+import { useLocaleContext } from "@/providers/LocaleProvider";
 
 /**
  * Fetch another batch once this many unseen cards remain, so the next card
@@ -31,19 +31,30 @@ type UseSwipeHistoryResult = {
  */
 export const useSwipeHistory = (): UseSwipeHistoryResult => {
   const utils = trpc.useUtils();
+  const { locale } = useLocaleContext();
   const [entries, setEntries] = useState<CardHistoryEntry[]>([]);
   const [index, setIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const isFetchingRef = useRef(false);
+  const localeRef = useRef(locale);
+  localeRef.current = locale;
 
   const fetchPage = useCallback(async () => {
     if (isFetchingRef.current) {
       return;
     }
     isFetchingRef.current = true;
+    const requestLocale = locale;
     try {
-      const locale = getDeviceLocale();
-      const { posts } = await utils.feed.list.fetch({ locale });
+      const { posts } = await utils.feed.list.fetch({ locale: requestLocale });
+      /**
+       * A locale switch mid-fetch (Settings) can leave a stale response for
+       * the old locale in flight — drop it so it never mixes into the
+       * freshly-reset buffer for the new one.
+       */
+      if (requestLocale !== localeRef.current) {
+        return;
+      }
       setEntries((previousEntries) => [
         ...previousEntries,
         ...posts.map((post) => ({ post, verdict: null })),
@@ -53,10 +64,13 @@ export const useSwipeHistory = (): UseSwipeHistoryResult => {
     } finally {
       isFetchingRef.current = false;
     }
-  }, [utils]);
+  }, [utils, locale]);
 
   useEffect(() => {
     const run = async () => {
+      setIsLoading(true);
+      setEntries([]);
+      setIndex(0);
       try {
         await fetchPage();
       } finally {
@@ -66,7 +80,7 @@ export const useSwipeHistory = (): UseSwipeHistoryResult => {
 
     run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     if (!isLoading && entries.length - index <= PREFETCH_THRESHOLD) {

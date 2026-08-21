@@ -38,7 +38,7 @@ import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
 import { trpc } from "@/clients/trpc";
 import { useHasSeenCoach } from "@/hooks/useHasSeenCoach";
 import { useSwipeHistory } from "@/hooks/useSwipeHistory";
-import { useSessionContext } from "@/providers/session-provider";
+import { useSessionContext } from "@/providers/SessionProvider";
 
 import { AuthToast } from "@/components/AuthToast";
 import { FactCard } from "@/components/FactCard";

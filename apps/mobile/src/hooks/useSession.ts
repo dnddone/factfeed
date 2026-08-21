@@ -8,6 +8,7 @@ export type SessionStatus = "guest" | "authenticating" | "authed";
 type UseSessionResult = {
   status: SessionStatus;
   accessToken: string | null;
+  email: string | null;
 };
 
 export const useSession = (): UseSessionResult => {
@@ -40,5 +41,9 @@ export const useSession = (): UseSessionResult => {
       ? "authed"
       : "guest";
 
-  return { status, accessToken: session?.access_token ?? null };
+  return {
+    status,
+    accessToken: session?.access_token ?? null,
+    email: session?.user.email ?? null,
+  };
 };
