@@ -189,7 +189,7 @@ waits for Phase 5 (needs backend Phase 4).
 
 ## Phase 4 — Backend: editable swipes (ADR 0012)
 
-**Status:** Not Started
+**Status:** Done
 
 Backend-only, independently mergeable, safe to merge before its consumer
 (Phase 5). Makes a verdict change (Like ↔ Dislike) revise ranking exactly.
@@ -221,7 +221,7 @@ Backend-only, independently mergeable, safe to merge before its consumer
 
 ## Phase 5 — Editable verdicts on revisit (mobile)
 
-**Status:** Not Started
+**Status:** Done
 
 Enable "change your mind." Small client change on top of Phase 3's deck, now
 that the backend (Phase 4) supports it.
