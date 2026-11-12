@@ -48,7 +48,7 @@ final logo is solid instead of outline.
 - `src/hooks/useHasSeenIntro.ts` — reads/writes `hasSeenIntro`.
 - Root `app/_layout.tsx` — render `IntroSplash` above the routes while the
   intro is active.
-- Logo paths live in a `src/constants/` file (single-stroke path data).
+- Logo paths live in a `src/content/` file (single-stroke path data).
 
 ## Open items
 

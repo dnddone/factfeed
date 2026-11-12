@@ -13,11 +13,11 @@ Design doc: `docs/design-docs/2026-09-18-intro-splash-screen.md` (Approved).
 
 ## Phase 2 — Intro animation
 
-**Status:** Not Started
+**Status:** Done
 
 - Add `react-native-svg` (`npx expo install`).
-- `src/constants/logo.constants.ts`: single-stroke path data for the two F letters (hand-authored placeholder until the real SVG exists).
-- `src/components/IntroSplash.tsx`: white F draws, gold F draws (overlapping), shimmer, fade out. Reanimated + `strokeDashoffset`.
+- `src/content/progress.content.ts`: single-stroke path data for the two F letters (hand-authored placeholder until the real SVG exists).
+- `src/components/IntroSplash/`: white F draws, gold F draws (overlapping), shimmer, fade out. Reanimated + `strokeDashoffset`.
 - Tap to skip. Skip entirely when reduce-motion is on.
 - Calls `onFinish` when done or skipped.
 
