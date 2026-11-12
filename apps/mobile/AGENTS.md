@@ -121,12 +121,15 @@ Two tiers, by reach — not by whether a component is a "primitive" vs.
 
 ## Content
 
-`src/content/` holds structured UI data that pairs a value with an i18n
-key — option lists, lookup tables, anything beyond a single string. Plain
-copy still goes through `react-i18next` directly in the component;
-`content/` is only for structured data. One file per concern, named
-`<concern>.content.ts`. Unlike `constants/` (MACRO_CASE, logic values),
-`content/` exports stay camelCase — they're consumed as UI data, not logic:
+`src/content/` holds static, structured data the UI renders — option lists
+paired with i18n keys, lookup tables, artwork data like SVG path strokes
+(`progress.content.ts`). An i18n key is not required; what matters is that
+it is data the UI draws from, not a logic value. Plain copy still goes
+through `react-i18next` directly in the component; `content/` is only for
+structured data. One file per concern, named `<concern>.content.ts`. Unlike
+`constants/` (MACRO_CASE, logic values like durations, thresholds, storage
+keys), `content/` exports stay camelCase — they're consumed as UI data, not
+logic:
 
 ```ts
 export const categoryFilterOptions = [

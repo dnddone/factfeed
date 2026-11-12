@@ -11,3 +11,9 @@ export const APP_BACKGROUND_COLOR = "#0B0A09";
  * `className` (e.g. `Stack.Screen`'s `headerTintColor`).
  */
 export const CREAM_COLOR = "#F7F1E7";
+
+/**
+ * Raw hex twin of the `keep` NativeWind color. Also the gold of the FF logo,
+ * which is drawn with SVG `stroke` props that don't take a `className`.
+ */
+export const KEEP_COLOR = "#E9A23B";
