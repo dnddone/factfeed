@@ -9,3 +9,9 @@ export const HAS_SEEN_COACH_STORAGE_KEY = "hasSeenCoach";
  * Settings). Falls back to the device locale when unset.
  */
 export const LOCALE_STORAGE_KEY = "locale";
+
+/**
+ * AsyncStorage key for the first-launch intro splash flag — set once the
+ * intro has played (or been skipped) so it never reappears.
+ */
+export const HAS_SEEN_INTRO_STORAGE_KEY = "hasSeenIntro";
