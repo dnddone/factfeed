@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { I18nextProvider } from "react-i18next";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -10,10 +11,17 @@ import { APP_BACKGROUND_COLOR } from "@/constants/theme.constants";
 import { i18next } from "@/clients/i18n";
 import { queryClient, trpc, trpcClient } from "@/clients/trpc";
 import { useAuthCallbackListener } from "@/hooks/useAuthCallbackListener";
+import { useHasSeenIntro } from "@/hooks/useHasSeenIntro";
 import { LocaleProvider } from "@/providers/LocaleProvider";
 import { SessionProvider } from "@/providers/SessionProvider";
 
 import "../global.css";
+
+/**
+ * Keep the native splash up until the intro flag has loaded (see
+ * `useHasSeenIntro`), so there is no blank frame or flash before the intro.
+ */
+SplashScreen.preventAutoHideAsync();
 
 /**
  * Root layout. The feed is immersive, so the native header is hidden and the
@@ -21,6 +29,13 @@ import "../global.css";
  */
 const RootLayout: React.FC = () => {
   useAuthCallbackListener();
+  const { isLoaded } = useHasSeenIntro();
+
+  useEffect(() => {
+    if (isLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [isLoaded]);
 
   return (
     /**
